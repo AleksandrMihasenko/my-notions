@@ -1,11 +1,15 @@
 package com.aleksandrm.mynotions.auth;
 
+import com.aleksandrm.mynotions.email.EmailService;
+import com.aleksandrm.mynotions.email.EmailTemplateName;
 import com.aleksandrm.mynotions.role.RoleRepository;
 import com.aleksandrm.mynotions.user.Token;
 import com.aleksandrm.mynotions.user.TokenRepository;
 import com.aleksandrm.mynotions.user.User;
 import com.aleksandrm.mynotions.user.UserRepository;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +25,11 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final EmailService emailService;
+    @Value("${application.mailing.frontend.activation-url}")
+    private String activationUrl;
 
-    public void register(RegistrationRequest request) {
+    public void register(RegistrationRequest request) throws MessagingException {
         var userRole = roleRepository.findByName("USER")
                 // TODO implement handling of exception
                 .orElseThrow(() -> new IllegalArgumentException("Role USER was not initialized"));
@@ -40,9 +47,17 @@ public class AuthenticationService {
         sentValidationEmail(user);
     }
 
-    private void sentValidationEmail(User user) {
+    private void sentValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
-        // send email
+
+        emailService.sendEmail(
+                user.getEmail(),
+                user.getFullName(),
+                EmailTemplateName.ACTIVATE_ACCOUNT,
+                activationUrl,
+                newToken,
+                "Account activation"
+        );
     }
 
     private String generateAndSaveActivationToken(User user) {
