@@ -1,16 +1,17 @@
 services:
   mysql:
     container_name: mysql
-    image: mysql
+    image: mysql:8.0
     environment:
       MYSQL_USER: username
+      MYSQL_ROOT_PASSWORD: username
       MYSQL_PASSWORD: password
       MYSQL_DATA: /var/lib/mysql/data
       MYSQL_DB: my_notions_network
     volumes:
       - mysql:/data/mysql
     ports:
-      - 5432:5432
+      - 3306:3306
     networks:
       - spring-demo
     restart: unless-stopped
