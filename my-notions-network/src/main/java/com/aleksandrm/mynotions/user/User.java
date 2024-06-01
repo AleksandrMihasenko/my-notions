@@ -1,5 +1,6 @@
 package com.aleksandrm.mynotions.user;
 
+import com.aleksandrm.mynotions.article.Article;
 import com.aleksandrm.mynotions.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -40,6 +41,9 @@ public class User implements UserDetails, Principal {
 
     @ManyToMany(fetch = FetchType.EAGER)
      private List<Role> roles;
+
+    @OneToMany(mappedBy = "owner")
+    private List<Article> articles;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

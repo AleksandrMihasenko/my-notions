@@ -1,9 +1,7 @@
 package com.aleksandrm.mynotions.article;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.aleksandrm.mynotions.user.User;
+import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -38,4 +36,8 @@ public class Article {
     @LastModifiedBy
     @Column(insertable = false)
     private Integer lastModifiedBy;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
 }
