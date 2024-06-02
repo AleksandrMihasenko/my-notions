@@ -49,4 +49,15 @@ public class Article {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
+
+    @Transient
+    public double getRate() {
+        if (owner == null) {
+            return 0.0;
+        }
+
+        //TODO implement likes and rate
+        var rate = 0.0;
+        return rate;
+    }
 }

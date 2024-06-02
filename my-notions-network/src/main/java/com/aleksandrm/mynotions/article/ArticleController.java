@@ -5,10 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("articles")
@@ -24,5 +21,12 @@ public class ArticleController {
             Authentication connectedUser
     ) {
         return ResponseEntity.ok(service.save(request, connectedUser));
+    }
+
+    @GetMapping("{article-id}")
+    public ResponseEntity<ArticleResponse> findArticleById(
+            @PathVariable("article-id") Integer articleId
+    ) {
+        return ResponseEntity.ok(service.findById(articleId));
     }
 }

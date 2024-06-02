@@ -15,4 +15,19 @@ public class ArticleMapper {
                 .published(request.published())
                 .build();
     }
+
+    public ArticleResponse toArticleResponse(Article article) {
+        return ArticleResponse.builder()
+                .id(article.getId())
+                .title(article.getTitle())
+                .author(article.getAuthor())
+                .isbn(article.getIsbn())
+                .description(article.getContent())
+                .rate(article.getRate())
+                .archived(article.isArchived())
+                .published(article.isPublished())
+                // TODO implement uploading images
+                // .cover()
+                .build();
+    }
 }
