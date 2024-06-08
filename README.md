@@ -64,7 +64,8 @@ To get started with the Book Social Network project, follow the setup instructio
 
 ## TODO and Ideas
 
-- [ ] Simple CRUD
+- [x] Simple CRUD
 - [ ] UI for app using React
-- [ ] Login functionality
+- [x] Login functionality
 - [ ] I18n for UI
+- [ ] write backend and frontend tests
