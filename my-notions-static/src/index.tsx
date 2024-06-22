@@ -1,7 +1,7 @@
 import { render } from 'react-dom';
-import './index.sass';
+import App from './App';
 
 render(
-    <div>Test!</div>,
+    <App />,
     document.getElementById('root'),
 )
