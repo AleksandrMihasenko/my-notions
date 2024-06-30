@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import Navbar from 'widgets/Navbar/ui/Navbar';
 import { useTheme } from 'app/providers/ThemeProvider';
 import { AppRouter } from 'app/providers/router';
 import { getClassNames } from 'shared/lib/classNames/classNames';
@@ -11,8 +11,7 @@ function App() {
         <div className={getClassNames('app', {}, [theme])}>
             <button onClick={toggleTheme}>Toggle</button>
 
-            <Link to={'/'}>Main</Link>
-            <Link to={'/about'}>About</Link>
+            <Navbar />
 
             <AppRouter />
         </div>
