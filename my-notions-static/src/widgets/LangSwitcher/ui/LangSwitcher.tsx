@@ -1,6 +1,5 @@
 import React from 'react';
 import Button, { ButtonTheme } from 'shared/ui/Button/Button';
-import { useTheme, Theme } from 'app/providers/ThemeProvider';
 import { useTranslation } from 'react-i18next';
 import { getClassNames } from 'shared/lib/classNames/classNames';
 import * as classes from './LangSwitcher.module.scss';
