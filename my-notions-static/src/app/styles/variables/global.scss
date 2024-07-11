@@ -1,15 +1,11 @@
 :root {
-  --font-primary-main: Roboto, "Helvetica Neue", sans-serif;
-
+  --font-primary-main: roboto, "Helvetica Neue", sans-serif;
   --font-size-m: 16px;
   --font-size-l: 24px;
-
   --font-line-m: 24px;
   --font-line-l: 32px;
-
   --font-m: var(--font-size-m) / var(--font-line-m) / var(--font-primary-main);
   --font-l: var(--font-size-l) / var(--font-line-l) / var(--font-primary-main);
-
   --sidebar-width: 300px;
   --sidebar-width-collapsed: 40px;
   --navbar-height: 50px;
