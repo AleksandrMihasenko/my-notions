@@ -35,8 +35,10 @@ List of technologies.
 ### Frontend (book-network-ui)
 
 - React
-- Component-Based Architecture
-- Unit tests
+- Typescript
+- Component-Based Architecture using FSD approach
+- Unit tests using Jest and React test library
+- Screenshot test using Storybook and Loki
 
 ## Learning Objectives
 
@@ -67,5 +69,7 @@ To get started with the Book Social Network project, follow the setup instructio
 - [x] Simple CRUD
 - [ ] UI for app using React
 - [x] Login functionality
-- [ ] I18n for UI
-- [ ] write backend and frontend tests
+- [x] I18n for UI
+- [ ] write backend tests
+- [x] write frontend tests
+- [ ] containerized application
