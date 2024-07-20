@@ -73,3 +73,4 @@ To get started with the Book Social Network project, follow the setup instructio
 - [ ] write backend tests
 - [x] write frontend tests
 - [ ] containerized application
+- [ ] setup CI/CD
