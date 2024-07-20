@@ -30,3 +30,4 @@ build/
 
 *storybook.log
 my-notions-static/.cache/storybook
+my-notions-static/storybook-static
