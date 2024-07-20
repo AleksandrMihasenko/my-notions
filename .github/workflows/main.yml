@@ -6,8 +6,9 @@ on:
     branches: [ main ]
 jobs:
   frontend-pipeline:
-    env:
-      working-directory: ./my-notions-static
+    defaults:
+      run:
+        working-directory: my-notions-static
     runs-on: ubuntu-latest
     strategy:
       matrix:
