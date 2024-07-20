@@ -1,9 +1,9 @@
 name: GitHub Actions My Notions
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 jobs:
   frontend-pipeline:
     runs-on: ubuntu-latest
