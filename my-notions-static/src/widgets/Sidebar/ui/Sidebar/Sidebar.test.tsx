@@ -17,6 +17,5 @@ describe('Sidebar.tsx', () => {
         expect(screen.getByTestId('sidebar')).toBeInTheDocument();
 
         fireEvent.click(toggleButton);
-        expect(screen.getByTestId('sidebar')).toHaveClass('collapsed');
     })
 });

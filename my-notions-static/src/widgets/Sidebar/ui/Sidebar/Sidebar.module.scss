@@ -6,6 +6,13 @@
   transition: width 0.35s ease-in-out;
 }
 
+.collapseBtn {
+  position: absolute;
+  right: -15px;
+  bottom: 40px;
+  font-size: 26px;
+}
+
 .collapsed {
   width: var(--sidebar-width-collapsed);
 }
