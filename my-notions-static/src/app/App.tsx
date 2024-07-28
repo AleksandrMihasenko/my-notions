@@ -4,7 +4,6 @@ import { useTheme } from 'app/providers/ThemeProvider';
 import { AppRouter } from 'app/providers/router';
 import { Sidebar } from 'widgets/Sidebar';
 import { getClassNames } from 'shared/lib/classNames/classNames';
-import './styles/index.scss';
 
 function App() {
     const {theme} = useTheme();
