@@ -66,11 +66,12 @@ To get started with the Book Social Network project, follow the setup instructio
 
 ## TODO and Ideas
 
-- [x] Simple CRUD
-- [ ] UI for app using React
-- [x] Login functionality
-- [x] I18n for UI
+- [ ] Setup project with docker
+- [ ] Add database
+- [ ] Create simple CRUD
+- [ ] Create simple UI for app using React
+- [ ] Login functionality
+- [ ] I18n for UI
 - [ ] write backend tests
-- [x] write frontend tests
-- [ ] containerized application
+- [ ] write frontend tests
 - [ ] setup CI/CD
