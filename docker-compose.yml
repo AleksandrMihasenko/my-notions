@@ -1,0 +1,31 @@
+services:
+  mysql:
+    container_name: mysql
+    image: mysql
+    environment:
+      MYSQL_USER: username
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: password
+      MYSQL_DATA: /var/lib/mysql/data
+      MYSQL_DATABASE: my_notions_network
+    volumes:
+      - mysql:/data/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - spring-demo
+    restart: unless-stopped
+  mail-dev:
+    container_name: mail-dev-bsn
+    image: maildev/maildev
+    ports:
+      - 1080:1080
+      - 1025:1025
+
+volumes:
+  mysql:
+    driver: local
+
+networks:
+  spring-demo:
+    driver: bridge
