@@ -9,5 +9,4 @@ public class MyNotionsApplication {
     public static void main(String[] args) {
         SpringApplication.run(MyNotionsApplication.class, args);
     }
-
 }
