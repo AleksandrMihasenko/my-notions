@@ -17,11 +17,6 @@ public class TodoRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-//    public void addTodo(Todo todo) {
-//        String sql = "INSERT INTO todos (task, completed) VALUES (?, ?)";
-//        jdbcTemplate.update(sql, todo.getTask(), todo.isCompleted());
-//    }
-
     public List<Todo> getTodos() {
         String sql = "SELECT * FROM todos";
         return jdbcTemplate.query(sql, (rs, rowNum) ->
@@ -33,8 +28,19 @@ public class TodoRepository {
         );
     }
 
-//    public void deleteTodo(Long id) {
-//        String sql = "DELETE FROM todos WHERE id = ?";
-//        jdbcTemplate.update(sql, id);
-//    }
+    public void addTodo(Todo todo) {
+        String sql = "INSERT INTO todos (task, completed) VALUES (?, ?)";
+        jdbcTemplate.update(sql, todo.getTask(), todo.isCompleted());
+    }
+
+    public void updateTodo(Long id, boolean completed) {
+        String sql = "UPDATE todos SET completed = ? WHERE id = ?";
+
+        jdbcTemplate.update(sql, completed, id);
+    }
+
+    public void deleteTodo(Long id) {
+        String sql = "DELETE FROM todos WHERE id = ?";
+        jdbcTemplate.update(sql, id);
+    }
 }

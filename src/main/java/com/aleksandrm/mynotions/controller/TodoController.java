@@ -21,4 +21,19 @@ public class TodoController {
     public List<Todo> getTodos() {
         return todoRepository.getTodos();
     }
+
+    @PostMapping
+    public void addTodo(@RequestBody Todo todo) {
+        todoRepository.addTodo(todo);
+    }
+
+    @PutMapping("/{id}")
+    public void updateTodo(@PathVariable Long id, @RequestBody Todo todo) {
+        todoRepository.updateTodo(id, todo.isCompleted());
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteTodo(@PathVariable Long id) {
+        todoRepository.deleteTodo(id);
+    }
 }
