@@ -1,8 +1,9 @@
 package com.aleksandrm.mynotions.controller;
 
-import model.Todo;
+import com.aleksandrm.mynotions.todo.Todo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import repository.TodoRepository;
+import com.aleksandrm.mynotions.repository.TodoRepository;
 
 import java.util.List;
 
@@ -11,8 +12,9 @@ import java.util.List;
 public class TodoController {
     private final TodoRepository todoRepository;
 
-    public TodoController() {
-        todoRepository = new TodoRepository();
+    @Autowired
+    public TodoController(TodoRepository todoRepository) {
+        this.todoRepository = todoRepository;
     }
 
     @GetMapping

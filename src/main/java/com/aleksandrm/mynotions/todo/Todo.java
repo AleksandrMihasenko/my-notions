@@ -1,4 +1,4 @@
-package model;
+package com.aleksandrm.mynotions.todo;
 
 public class Todo {
     private Long id;
