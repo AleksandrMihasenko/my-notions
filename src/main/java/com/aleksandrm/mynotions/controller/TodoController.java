@@ -8,7 +8,7 @@ import com.aleksandrm.mynotions.repository.TodoRepository;
 import java.util.List;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api/todos")
 public class TodoController {
     private final TodoRepository todoRepository;
 
