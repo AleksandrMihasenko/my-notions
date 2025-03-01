@@ -4,15 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My notion application</title>
-    <script defer src="app.js"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<h2>My notion application</h2>
-<form id="todoForm">
-    <input type="text" id="taskInput" placeholder="Type new task" required>
-    <button type="submit">Add</button>
-</form>
+<div class="note-form">
+    <h2>Create a Note</h2>
+    <label for="noteTitle">Title</label>
+    <input id="noteTitle" type="text" placeholder="Enter a title" required>
 
-<ul id="todoList"></ul>
+    <label for="noteAuthor">Your Name</label>
+    <input id="noteAuthor" type="text" placeholder="Enter your name" required>
+
+    <label for="noteContent">Content</label>
+    <textarea id="noteContent" placeholder="Enter your note..." required></textarea>
+
+    <button id="saveNoteButton">Save Note</button>
+</div>
+
+<ul id="notesList"></ul>
 </body>
 </html>

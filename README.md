@@ -6,10 +6,10 @@
 - [Technologies Used](#technologies-used)
 - [Learning Objectives](#learning-objectives)
 - [Getting Started](#getting-started)
-- [TODO and Ideas](#todo-and-ideas)
+- [TODO and Ideas](#note-and-ideas)
 
 ## Overview
-My notions is a full-stack application that enables users to write, publish, read articles. It offers features as user registration, secure email validation, articles management (including creation, updating, sharing), versioning, translating. The application ensures security using JWT tokens and adheres to best practices in REST API design. The backend is built with Spring Boot 3 and Spring Security 6, while the frontend is developed using React.
+My notions is a full-stack application that enables users to write, publish, read articles. It should offer features as user registration, secure email validation, articles management (including creation, updating, sharing), versioning, translating. The application ensures security using JWT tokens and adheres to best practices in REST API design. The backend is built with Spring Boot 3 and Spring Security 6, while the frontend is developed using React.
 
 ## Features
 - User Registration: Users can register for a new account.
@@ -56,6 +56,8 @@ By following this project, I would like to learn:
 - Implementing business requirements and handling business exceptions
 - Dockerizing the infrastructure
 - CI/CD pipeline & deployment
+- Usage of Redis, RabbitMQ/Kafka for async tasks
+- Add monitoring with Grafana/Clickhouse
 
 ## Getting Started
 
