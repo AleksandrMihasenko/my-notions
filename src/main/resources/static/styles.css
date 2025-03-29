@@ -36,9 +36,9 @@ body {
     background-color: #0056b3;
 }
 
-ul {
+.note-list {
     list-style: none;
-    padding: 0;
+    padding: 40px 20px;
 }
 
 ul li {
