@@ -50,7 +50,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 notesList.appendChild(noteItem);
             });
 
-            // Добавляем обработчики удаления после рендера
             document.querySelectorAll(".delete-button").forEach((button) => {
                 button.addEventListener("click", async () => {
                     const noteId = button.getAttribute("data-id");
@@ -74,5 +73,72 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    const createTagButton = document.getElementById("createTagButton");
+    const tagsList = document.getElementById("tagsList");
+    const newTagNameInput = document.getElementById("newTagName");
+
+    createTagButton.addEventListener("click", async () => {
+        const name = newTagNameInput.value.trim();
+        if (!name) {
+            alert("Please enter a tag name.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/tags", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name }),
+            });
+
+            if (response.ok) {
+                loadTags();
+                newTagNameInput.value = "";
+            } else {
+                console.error("Failed to create tag:", response.status);
+            }
+        } catch (error) {
+            console.error("Error creating tag:", error);
+        }
+    });
+
+    async function loadTags() {
+        tagsList.innerHTML = "";
+        try {
+            const response = await fetch("/tags");
+            const tags = await response.json();
+            tags?.forEach((tag) => {
+                const li = document.createElement("li");
+                li.innerHTML = `
+            <span>${tag.name}</span>
+            <button class="delete-tag-button" data-id="${tag.id}">Delete</button>
+          `;
+                tagsList.appendChild(li);
+            });
+
+            document.querySelectorAll(".delete-tag-button").forEach((button) => {
+                button.addEventListener("click", async () => {
+                    const tagId = button.getAttribute("data-id");
+                    await deleteTag(tagId);
+                    loadTags();
+                });
+            });
+        } catch (error) {
+            console.error("Error loading tags:", error);
+        }
+    }
+
+    async function deleteTag(id) {
+        try {
+            const response = await fetch(`/tags/${id}`, { method: "DELETE" });
+            if (!response.ok) {
+                console.error("Failed to delete tag:", response.status);
+            }
+        } catch (error) {
+            console.error("Error deleting tag:", error);
+        }
+    }
+
     loadNotes();
+    loadTags();
 });
