@@ -71,6 +71,9 @@ To get started with the Book Social Network project, follow the setup instructio
 - [x] Setup project with docker
 - [x] Add database
 - [x] Create simple CRUD
+- [ ] Add pagination and filtration
+- [ ] Implement search
+- [ ] Implement event systems with message brokers
 - [ ] Create simple UI for app using React
 - [ ] Login functionality
 - [ ] I18n for UI
