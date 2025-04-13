@@ -12,8 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const creationDate = new Date().toISOString();
-        const noteData = { title, author, content, creationDate };
+        const noteData = { title, author, content };
 
         try {
             const response = await fetch("/api/notes", {
@@ -43,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const noteItem = document.createElement("li");
                 noteItem.innerHTML = `
           <h3>${note.title}</h3>
-          <p><strong>${note.author}</strong> - ${new Date(note.creationDate).toLocaleString()}</p>
+          <p><strong>${note.author}</strong> - ${new Date(note.createdAt).toLocaleString('en-US')}</p>
           <p>${note.content}</p>
           <button class="delete-button" data-id="${note.id}">Delete</button>
         `;

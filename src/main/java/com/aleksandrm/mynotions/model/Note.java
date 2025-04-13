@@ -2,7 +2,7 @@ package com.aleksandrm.mynotions.model;
 
 import lombok.*;
 
-import java.time.Instant;
+import java.sql.Timestamp;
 
 @Data
 @NoArgsConstructor
@@ -12,6 +12,6 @@ public class Note {
     private String title;
     private String content;
     private String author;
-    private Instant creationDate;
+    private Timestamp createdAt;
 
 }

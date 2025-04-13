@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
@@ -19,9 +18,9 @@ public class NoteRepository {
     }
 
     public void createNote(Note note) {
-        String sql = "INSERT INTO notes (title, content, author, creation_date) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO notes (title, content, author) VALUES (?, ?, ?)";
 
-        jdbcTemplate.update(sql, note.getTitle(), note.getContent(), note.getAuthor(), Timestamp.from(note.getCreationDate()));
+        jdbcTemplate.update(sql, note.getTitle(), note.getContent(), note.getAuthor());
     }
 
     public List<Note> getAllNotes() {
@@ -32,7 +31,7 @@ public class NoteRepository {
                 rs.getString("title"),
                 rs.getString("content"),
                 rs.getString("author"),
-                rs.getTimestamp("creation_date").toInstant()
+                rs.getTimestamp("created_at")
         ));
     }
 
