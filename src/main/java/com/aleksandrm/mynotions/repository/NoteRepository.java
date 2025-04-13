@@ -46,4 +46,21 @@ public class NoteRepository {
 
         jdbcTemplate.update(sql, id);
     }
+
+    public List<Note> searchByTitle(String query) {
+        String sql = "SELECT * FROM notes WHERE notes.title LIKE ?";
+        String likePattern = "%" + query + "%";
+
+        return jdbcTemplate.query(
+                sql,
+                new Object[]{likePattern},
+                (rs, rowNum) -> new Note(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("content"),
+                        rs.getString("author"),
+                        rs.getTimestamp("created_at")
+                )
+        );
+    }
 }

@@ -36,4 +36,9 @@ public class NoteController {
     public void deleteTodo(@PathVariable int id) {
         noteRepository.deleteNote(id);
     }
+
+    @GetMapping("/search")
+    public List<Note> searchByTitle(@RequestParam String query) {
+        return noteRepository.searchByTitle(query);
+    }
 }

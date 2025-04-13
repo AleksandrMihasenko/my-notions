@@ -36,9 +36,14 @@ body {
     background-color: #0056b3;
 }
 
-.note-list {
+.note-content {
     list-style: none;
     padding: 40px 20px;
+    background: #fff;
+}
+
+.search {
+    margin: 0 40px;
 }
 
 ul li {

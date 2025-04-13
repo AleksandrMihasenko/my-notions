@@ -1,6 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
     const notesList = document.getElementById("notesList");
     const saveNoteButton = document.getElementById("saveNoteButton");
+    const searchNotes = document.getElementById('searchInput');
+
+    searchNotes.addEventListener('input', () => {
+        const query = document.getElementById('searchInput').value.trim();
+        loadNotes(query);
+    });
 
     saveNoteButton.addEventListener("click", async () => {
         const title = document.getElementById("noteTitle").value.trim();
@@ -33,10 +39,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    async function loadNotes() {
+    async function loadNotes(search = "") {
         notesList.innerHTML = "";
+        const url = search ? `/api/notes/search?query=${encodeURIComponent(search)}` : '/api/notes';
+
         try {
-            const response = await fetch("/api/notes");
+            const response = await fetch(url);
             const notes = await response.json();
             notes.forEach((note) => {
                 const noteItem = document.createElement("li");
