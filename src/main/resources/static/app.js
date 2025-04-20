@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
-            const response = await fetch("/tags", {
+            const response = await fetch("/api/tags", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name }),
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function loadTags() {
         tagsList.innerHTML = "";
         try {
-            const response = await fetch("/tags");
+            const response = await fetch("/api/tags");
             const tags = await response.json();
             tags?.forEach((tag) => {
                 const li = document.createElement("li");
@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function deleteTag(id) {
         try {
-            const response = await fetch(`/tags/${id}`, { method: "DELETE" });
+            const response = await fetch(`/api/tags/${id}`, { method: "DELETE" });
             if (!response.ok) {
                 console.error("Failed to delete tag:", response.status);
             }

@@ -1,44 +1,48 @@
 package com.aleksandrm.mynotions.controller;
 
-import com.aleksandrm.mynotions.model.Note;
+import com.aleksandrm.mynotions.dto.NoteRequestDto;
+import com.aleksandrm.mynotions.dto.NoteResponseDto;
+import com.aleksandrm.mynotions.service.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.aleksandrm.mynotions.repository.NoteRepository;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/notes")
 public class NoteController {
-    private final NoteRepository noteRepository;
+
+    private final NoteService noteService;
 
     @Autowired
-    public NoteController(NoteRepository noteRepository) {
-        this.noteRepository = noteRepository;
+    public NoteController(NoteService noteService) {
+        this.noteService = noteService;
     }
 
     @GetMapping
-    public List<Note> getTodos() {
-        return noteRepository.getAllNotes();
+    public ResponseEntity<List<NoteResponseDto>> getAll() {
+        return ResponseEntity.ok(noteService.getAllNotes());
     }
 
     @PostMapping
-    public void addTodo(@RequestBody Note note) {
-        noteRepository.createNote(note);
+    public ResponseEntity<NoteResponseDto> create(@RequestBody NoteRequestDto dto) {
+        return ResponseEntity.ok(noteService.createNote(dto));
     }
 
     @PutMapping("/{id}")
-    public void updateTodo(@PathVariable int id, @RequestBody Note note) {
-        noteRepository.updateNote(id, note);
+    public ResponseEntity<NoteResponseDto> update(@PathVariable int id, @RequestBody NoteRequestDto dto) {
+        return ResponseEntity.ok(noteService.updateNote(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTodo(@PathVariable int id) {
-        noteRepository.deleteNote(id);
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        noteService.deleteNote(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/search")
-    public List<Note> searchByTitle(@RequestParam String query) {
-        return noteRepository.searchByTitle(query);
+    public ResponseEntity<List<NoteResponseDto>> searchByTitle(@RequestParam String query) {
+        return ResponseEntity.ok(noteService.searchByTitle(query));
     }
 }

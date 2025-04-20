@@ -1,43 +1,43 @@
 package com.aleksandrm.mynotions.controller;
 
-import com.aleksandrm.mynotions.model.Tag;
-import com.aleksandrm.mynotions.repository.TagRepository;
+import com.aleksandrm.mynotions.dto.TagRequestDto;
+import com.aleksandrm.mynotions.dto.TagResponseDto;
+import com.aleksandrm.mynotions.service.TagService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/tags")
+@RequestMapping("/api/tags")
 public class TagController {
 
-    private final TagRepository tagRepository;
+    private final TagService tagService;
 
-    public TagController(TagRepository tagRepository) {
-        this.tagRepository = tagRepository;
-    }
-
-    @GetMapping
-    public List<Tag> getAllTags() {
-        return tagRepository.getTags();
-    }
-
-    @GetMapping("/{id}")
-    public Tag getTagById(@PathVariable int id) {
-        return tagRepository.getTagById(id);
+    @Autowired
+    public TagController(TagService tagService) {
+        this.tagService = tagService;
     }
 
     @PostMapping
-    public void addTag(@RequestBody Tag tag) {
-        tagRepository.addTag(tag.getName());
+    public ResponseEntity<TagResponseDto> addTag(@RequestBody TagRequestDto dto) {
+        return ResponseEntity.ok(tagService.addTag(dto));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TagResponseDto>> getAll() {
+        return ResponseEntity.ok(tagService.getAllTags());
     }
 
     @PutMapping("/{id}")
-    public void updateTag(@PathVariable int id, @RequestBody Tag tag) {
-        tagRepository.updateTag(id, tag.getName());
+    public ResponseEntity<TagResponseDto> update(@PathVariable int id, @RequestBody TagRequestDto dto) {
+        return ResponseEntity.ok(tagService.updateTag(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTag(@PathVariable int id) {
-        tagRepository.deleteTag(id);
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        tagService.deleteTag(id);
+        return ResponseEntity.noContent().build();
     }
 }

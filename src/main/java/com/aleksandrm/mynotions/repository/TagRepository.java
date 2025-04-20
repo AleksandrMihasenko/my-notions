@@ -17,9 +17,9 @@ public class TagRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void addTag(String name) {
+    public void addTag(Tag tag) {
         String sql = "INSERT INTO tags (name) VALUES (?)";
-        jdbcTemplate.update(sql, name);
+        jdbcTemplate.update(sql, tag.getName());
     }
 
     public List<Tag> getTags() {
@@ -36,9 +36,9 @@ public class TagRepository {
         );
     }
 
-    public void updateTag(int id, String name) {
+    public void updateTag(int id, Tag tag) {
         String sql = "UPDATE tags SET name = ? WHERE id = ?";
-        jdbcTemplate.update(sql, name, id);
+        jdbcTemplate.update(sql, tag.getName(), id);
     }
 
     public void deleteTag(int id) {
