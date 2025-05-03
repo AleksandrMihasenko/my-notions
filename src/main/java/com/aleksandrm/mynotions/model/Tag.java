@@ -8,5 +8,6 @@ import lombok.*;
 public class Tag {
     private int id;
     private String name;
-
+    // optional
+    // private List<Note> notes;
 }

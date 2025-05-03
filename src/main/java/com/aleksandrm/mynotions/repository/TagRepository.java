@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class TagRepository {
@@ -35,6 +36,34 @@ public class TagRepository {
                 new Tag(rs.getInt("id"), rs.getString("name")), id
         );
     }
+
+    public List<Tag> findByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+
+        String placeholders = ids.stream()
+                .map(id -> "?")
+                .collect(Collectors.joining(", "));
+
+        String sql = "SELECT * FROM tags WHERE id IN (" + placeholders + ")";
+
+        return jdbcTemplate.query(sql, ids.toArray(), (rs, rowNum) ->
+                new Tag(rs.getInt("id"), rs.getString("name"))
+        );
+    }
+
+    public List<Tag> findTagsByNoteId(int noteId) {
+        String sql = """
+        SELECT t.id, t.name
+        FROM tags t
+        JOIN note_tags nt ON t.id = nt.tag_id
+        WHERE nt.note_id = ?
+    """;
+
+        return jdbcTemplate.query(sql, new Object[]{noteId}, (rs, rowNum) ->
+                new Tag(rs.getInt("id"), rs.getString("name"))
+        );
+    }
+
 
     public void updateTag(int id, Tag tag) {
         String sql = "UPDATE tags SET name = ? WHERE id = ?";

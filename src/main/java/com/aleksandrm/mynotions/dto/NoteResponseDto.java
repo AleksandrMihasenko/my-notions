@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -15,4 +16,5 @@ public class NoteResponseDto {
     private String content;
     private String author;
     private LocalDateTime createdAt;
+    private List<String> tagNames;
 }

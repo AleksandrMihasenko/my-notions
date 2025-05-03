@@ -4,6 +4,11 @@ import com.aleksandrm.mynotions.dto.NoteRequestDto;
 import com.aleksandrm.mynotions.dto.NoteResponseDto;
 import com.aleksandrm.mynotions.model.Note;
 
+import com.aleksandrm.mynotions.model.Tag;
+
+import java.util.List;
+
+
 public class NoteMapper {
 
     public static Note toEntity(NoteRequestDto dto) {
@@ -16,17 +21,15 @@ public class NoteMapper {
     }
 
     public static NoteResponseDto toDto(Note note) {
-        NoteResponseDto dto = new NoteResponseDto();
-
-        dto.setId(note.getId());
-        dto.setTitle(note.getTitle());
-        dto.setContent(note.getContent());
-        dto.setAuthor(note.getAuthor());
-
-        if (note.getCreatedAt() != null) {
-            dto.setCreatedAt(note.getCreatedAt().toLocalDateTime());
-        }
-
-        return dto;
+        return new NoteResponseDto(
+                note.getId(),
+                note.getTitle(),
+                note.getContent(),
+                note.getAuthor(),
+                note.getCreatedAt() != null ? note.getCreatedAt().toLocalDateTime() : null,
+                note.getTags() != null
+                        ? note.getTags().stream().map(Tag::getName).toList()
+                        : List.of()
+        );
     }
 }
