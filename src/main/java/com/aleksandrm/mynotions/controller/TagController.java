@@ -3,6 +3,7 @@ package com.aleksandrm.mynotions.controller;
 import com.aleksandrm.mynotions.dto.TagRequestDto;
 import com.aleksandrm.mynotions.dto.TagResponseDto;
 import com.aleksandrm.mynotions.service.TagService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class TagController {
     }
 
     @PostMapping
-    public ResponseEntity<TagResponseDto> addTag(@RequestBody TagRequestDto dto) {
+    public ResponseEntity<TagResponseDto> addTag(@Valid @RequestBody TagRequestDto dto) {
         return ResponseEntity.ok(tagService.addTag(dto));
     }
 
@@ -31,7 +32,7 @@ public class TagController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TagResponseDto> update(@PathVariable int id, @RequestBody TagRequestDto dto) {
+    public ResponseEntity<TagResponseDto> update(@PathVariable int id, @Valid @RequestBody TagRequestDto dto) {
         return ResponseEntity.ok(tagService.updateTag(id, dto));
     }
 

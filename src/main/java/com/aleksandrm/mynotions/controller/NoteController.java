@@ -3,6 +3,7 @@ package com.aleksandrm.mynotions.controller;
 import com.aleksandrm.mynotions.dto.NoteRequestDto;
 import com.aleksandrm.mynotions.dto.NoteResponseDto;
 import com.aleksandrm.mynotions.service.NoteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,12 +27,12 @@ public class NoteController {
     }
 
     @PostMapping
-    public ResponseEntity<NoteResponseDto> create(@RequestBody NoteRequestDto dto) {
+    public ResponseEntity<NoteResponseDto> create(@Valid @RequestBody NoteRequestDto dto) {
         return ResponseEntity.ok(noteService.createNote(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<NoteResponseDto> update(@PathVariable int id, @RequestBody NoteRequestDto dto) {
+    public ResponseEntity<NoteResponseDto> update(@PathVariable int id, @Valid @RequestBody NoteRequestDto dto) {
         return ResponseEntity.ok(noteService.updateNote(id, dto));
     }
 
