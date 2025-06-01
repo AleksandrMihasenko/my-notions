@@ -1,4 +1,22 @@
 services:
+  backend:
+    build:
+      context: ..
+      dockerfile: ./deploy/backend/Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+
+  frontend:
+    build:
+      context: ../
+      dockerfile: ./deploy/frontend/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
   mysql:
     container_name: mysql
     image: mysql
@@ -15,12 +33,13 @@ services:
     networks:
       - spring-demo
     restart: unless-stopped
-  mail-dev:
-    container_name: mail-dev-bsn
-    image: maildev/maildev
-    ports:
-      - 1080:1080
-      - 1025:1025
+
+#  mail-dev:
+#    container_name: mail-dev-bsn
+#    image: maildev/maildev
+#    ports:
+#      - 1080:1080
+#      - 1025:1025
 
 volumes:
   mysql:

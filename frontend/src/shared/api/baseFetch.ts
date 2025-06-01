@@ -1,4 +1,5 @@
 export async function baseFetch(url: string, options: RequestInit = {}) {
+	console.log('baseFetch');
 	const res = await fetch(import.meta.env.VITE_API_URL + url, {
 		...options,
 		headers: {

@@ -27,6 +27,14 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+/deploy/.env
+*.log
+.env
+node_modules/
+dist/
+target/
+.idea/
+.vscode/
 
 *storybook.log
 my-notions-static/.cache/storybook
