@@ -74,7 +74,10 @@
             <version>5.10.0</version> <!-- или любая актуальная -->
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
