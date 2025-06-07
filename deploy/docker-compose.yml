@@ -24,10 +24,9 @@ services:
       MYSQL_USER: username
       MYSQL_ROOT_PASSWORD: password
       MYSQL_PASSWORD: password
-      MYSQL_DATA: /var/lib/mysql/data
       MYSQL_DATABASE: my_notions_network
     volumes:
-      - mysql:/data/mysql
+      - mysql_data:/var/lib/mysql
     ports:
       - 3306:3306
     networks:
@@ -42,8 +41,7 @@ services:
 #      - 1025:1025
 
 volumes:
-  mysql:
-    driver: local
+  mysql_data:
 
 networks:
   spring-demo:
