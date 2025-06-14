@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
@@ -46,7 +46,6 @@ public class NoteRepository {
 
         return notes;
     }
-
 
     public void updateNote(Note note) {
         String updateSql = "UPDATE notes SET title = ?, content = ?, author = ? WHERE id = ?";
