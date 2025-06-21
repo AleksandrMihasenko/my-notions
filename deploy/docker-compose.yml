@@ -7,19 +7,24 @@ services:
       - 8081:80
     env_file:
       - .env
+    networks:
+      - notions
 
   frontend:
     build:
       context: ../
       dockerfile: ./deploy/frontend/Dockerfile
     ports:
-      - "80:80"
+      - 80:80
     depends_on:
       - backend
+    networks:
+      - notions
 
   mysql:
     container_name: mysql
     image: mysql
+    hostname: mysql
     environment:
       MYSQL_USER: username
       MYSQL_ROOT_PASSWORD: password
@@ -30,7 +35,7 @@ services:
     ports:
       - 3306:3306
     networks:
-      - spring-demo
+      - notions
     restart: unless-stopped
 
 #  mail-dev:
@@ -44,5 +49,5 @@ volumes:
   mysql_data:
 
 networks:
-  spring-demo:
+  notions:
     driver: bridge
