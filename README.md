@@ -34,7 +34,7 @@ List of technologies.
 
 ### Frontend (book-network-ui)
 
-- React
+- React/Svelte
 - Typescript
 - Component-Based Architecture using FSD approach
 - Unit tests using Jest and React test library
@@ -71,10 +71,11 @@ To get started with the Book Social Network project, follow the setup instructio
 - [x] Setup project with docker
 - [x] Add database
 - [x] Create simple CRUD
+- [x] Dockerized the project
+- [ ] Create simple UI for app using React/Svelte
 - [ ] Add pagination and filtration
 - [ ] Implement search
 - [ ] Implement event systems with message brokers
-- [ ] Create simple UI for app using React
 - [ ] Login functionality
 - [ ] I18n for UI
 - [ ] write backend tests
