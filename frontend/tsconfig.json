@@ -1,13 +1,7 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    },
-    "types": ["vite/client", "node"],
-  },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.svelte"],
-  "exclude": ["node_modules"],
-  "moduleResolution": "node"
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json"},
+    { "path": "./tsconfig.node.json"}
+  ]
 }
