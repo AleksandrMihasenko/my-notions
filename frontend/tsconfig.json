@@ -1,15 +1,27 @@
 {
   "files": [],
   "references": [
-    { "path": "./tsconfig.app.json"},
-    { "path": "./tsconfig.node.json"}
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [ "src/*" ]
     },
-    "types": ["node"],
-    "moduleResolution": "node"
+    "types": [ "react" ],
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": true
+  },
+  "include": [ "src" ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
   }
 }
