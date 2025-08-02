@@ -1,0 +1,21 @@
+.app.dark {
+  --bg-color: #191919;
+  --bg-cecondary: #2f3437;
+  --primary-color: #ffffffe6;
+  --secondary-color: #9b9a97;
+  --tertiary-color: #979a9b;
+  --border-color: #3f4345;
+
+  /* Semantic */
+  --color-error: #FF7369;
+  --color-warning: #FFDC49;
+  --color-success: #4DAB9A;
+  --color-info: #529CCA;
+
+  /* Other */
+  --color-link: #529CCA;
+  --color-selection: #3B3A30;
+  --color-focus-ring: #264653;
+  --color-disabled-bg: #3D3D3D;
+  --color-disabled-text: #888888;
+}
