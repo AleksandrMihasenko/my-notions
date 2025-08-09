@@ -1,10 +1,9 @@
 import { Routes, Route, Link } from 'react-router-dom';
-import NoteListPage from '@/pages/NoteListPage/NoteListPage'
-import MainPage from '@/pages/MainPage/MainPage';
+import { MainPage, NoteListPage } from '@/pages'
 import { Suspense } from 'react';
-import '@/styles/index.scss'
-import { useTheme } from '@/theme/useTheme';
-import { classNames } from '@/helpers/classNames/classNames';
+import './styles/index.scss'
+import { useTheme } from '@/app/providers/ThemeProvider';
+import { classNames } from '@/shared';
 
 export const App = () => {
 	const { theme, toggleTheme } = useTheme();
