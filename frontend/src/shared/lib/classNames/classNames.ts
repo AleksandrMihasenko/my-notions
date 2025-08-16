@@ -1,14 +1,11 @@
 type Mods = Record<string, boolean | string>;
 
-export const classNames = (cls: string, mods: Mods, additional: string[]): string => {
+export const classNames = (cls: string, mods: Mods = {}, additional: (string | undefined)[] = []): string => {
 	return [
 		cls,
 		...additional,
 		...Object.entries(mods)
 			.filter(([_, value]) => Boolean(value))
-			.map(([className, _]) => {
-				console.log(className);
-				return className;
-			}),
+			.map(([className, _]) => className),
 	].join(' ')
 }
