@@ -1,5 +1,9 @@
+import { useTranslation } from 'react-i18next';
+
 const NoteListPage = () => {
-	return <div>Welcome to Notion Clone</div>
+	const { t } = useTranslation('translation');
+
+	return <div>{ t('notesPage') }</div>
 }
 
 export default NoteListPage;
