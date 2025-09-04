@@ -1,4 +1,4 @@
-.Sidebar {
+.sidebar {
   position: relative;
   height: calc(100vh - var(--navbar-height));
   width: var(--sidebar-width);
@@ -6,6 +6,7 @@
   transition: width .25s ease-in-out;
 
 }
+
   .collapsed {
     width: var(--sidebar-width-collapsed);
   }

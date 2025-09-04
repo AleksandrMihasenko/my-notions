@@ -1,7 +1,6 @@
 import React from 'react';
 import { Theme, useTheme } from '@/app/providers/ThemeProvider';
 import { AppButton, classNames } from '@/shared';
-import cls from './ThemeSwitcher.module.scss';
 import Sun from '@/shared/assets/sun.svg?react';
 import Moon from '@/shared/assets/moon.svg?react';
 
@@ -15,7 +14,7 @@ const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
 	return (
 		<AppButton
 			theme={'clear'}
-			className={classNames(cls.ThemeSwitcher, {}, [className])}
+			className={classNames('', {}, [className])}
 			onClick={toggleTheme}
 		>
 			{theme === Theme.DARK ? <Moon /> : <Sun />}

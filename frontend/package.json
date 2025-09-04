@@ -8,6 +8,8 @@
     "build": "vite build",
     "lint": "eslint **/*.{ts,tsx}",
     "lint:fix": "eslint **/*.{ts,tsx} --fix",
+    "stylelint": "stylelint **/*.scss",
+    "stylelint:fix": "stylelint **/*.scss --fix",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -30,6 +32,8 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.2.0",
     "sass-embedded": "^1.89.2",
+    "stylelint": "^16.23.1",
+    "stylelint-config-standard-scss": "^15.0.1",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.34.1",
     "vite": "^7.0.0",

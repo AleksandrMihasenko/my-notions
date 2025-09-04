@@ -17,7 +17,7 @@ const AppButton = (props: AppButtonProps) => {
 	return (
 		<button
 			type="button"
-			className={classNames(cls.AppButton, {}, [className, theme])}
+			className={classNames(cls['app-button'], {}, [className, theme])}
 			{ ...otherProps }
 		>
 			{children}
