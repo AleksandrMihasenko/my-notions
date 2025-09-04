@@ -19,5 +19,10 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      'indent': ['error', 'tab'],
+      'quotes': ['error', 'single'],
+      '@typescript-eslint/no-unused-vars': 'warn',
+    }
   },
 ])

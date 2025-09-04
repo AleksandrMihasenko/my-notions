@@ -17,8 +17,8 @@ const Navbar = ({ className }: NavbarProps) => {
 			<ThemeSwitcher />
 
 			<div className={cls.links}>
-				<AppLink to={"/"}>{ t('links.main') }</AppLink>
-				<AppLink to={"/notes"}>{ t('links.notes') }</AppLink>
+				<AppLink to={'/'}>{ t('links.main') }</AppLink>
+				<AppLink to={'/notes'}>{ t('links.notes') }</AppLink>
 			</div>
 		</div>
 	);
