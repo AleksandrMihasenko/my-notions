@@ -9,7 +9,8 @@
     "paths": {
       "@/*": [ "src/*" ]
     },
-    "types": [ "react" ],
+    "isolatedModules": true,
+    "types": [ "react", "jest" ],
     "allowSyntheticDefaultImports": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
