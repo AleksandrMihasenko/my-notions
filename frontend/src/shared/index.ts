@@ -1,5 +1,7 @@
 import { classNames } from './lib/classNames/classNames.ts';
-import AppLink from './ui/AppLink/AppLink.tsx';
-import AppButton from './ui/AppButton/AppButton.tsx';
+import AppLink from './ui/AppLink/AppLink';
+import AppButton from './ui/AppButton/AppButton';
+import PageLoader from './ui/PageLoader/PageLoader';
+import Loader from './ui/Loader/Loader';
 
-export { AppLink, AppButton, classNames }
+export { AppLink, AppButton, PageLoader, Loader, classNames }

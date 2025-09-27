@@ -1,6 +1,7 @@
 {
   "mainPage": "Main page",
   "notesPage": " Welcome to Notion Clone",
+  "notFoundPage": "Page not found.",
   "links": {
     "main": "Main",
     "notes": "Notes"
