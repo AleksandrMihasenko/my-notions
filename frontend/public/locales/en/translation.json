@@ -2,8 +2,12 @@
   "mainPage": "Main page",
   "notesPage": " Welcome to Notion Clone",
   "notFoundPage": "Page not found.",
+  "errorPage": "Something went wrong.",
   "links": {
     "main": "Main",
     "notes": "Notes"
+  },
+  "actions": {
+    "reload": "Reload page"
   }
 }
