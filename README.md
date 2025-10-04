@@ -123,5 +123,5 @@ To get started with the Book Social Network project, follow the setup instructio
 - [ ] Data visualization & reports
 - [ ] Localization and theme support
 - [ ] Payment & subscription support
-- [ ] Different API approaches (REST, GraphQL, gRPC, websockets etc)
 - [ ] Implement authorization & authentication
+- [ ] Different API approaches (REST, GraphQL, gRPC, websockets etc)
