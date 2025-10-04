@@ -108,7 +108,7 @@ To get started with the Book Social Network project, follow the setup instructio
 - [ ] Implement RBAC (roles & access control)
 
 #### Technologies
-- [ ] Implement authorization & authentication with hashing
+- [ ] JWT and hashing algorithms
 - [ ] Add Redis caching
 - [ ] Integrate Kafka or RabbitMQ
 - [ ] Add WebSocket for real-time updates
@@ -123,4 +123,5 @@ To get started with the Book Social Network project, follow the setup instructio
 - [ ] Data visualization & reports
 - [ ] Localization and theme support
 - [ ] Payment & subscription support
-- [ ] Different API approaches (REST, GraphQL, gRPC, etc)
+- [ ] Different API approaches (REST, GraphQL, gRPC, websockets etc)
+- [ ] Implement authorization & authentication
