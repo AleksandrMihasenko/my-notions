@@ -5,18 +5,20 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
     "baseUrl": ".",
     "paths": {
       "@/*": [ "src/*" ]
     },
     "isolatedModules": true,
     "types": [ "react", "jest" ],
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": false,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true
   },
