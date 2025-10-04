@@ -91,7 +91,6 @@ To get started with the Book Social Network project, follow the setup instructio
 ## TODO and Progress
 
 ### 🔄 In Progress
-- [ ] Migrate frontend from Svelte to React
 - [ ] Move business logic to a core module (Clean Architecture)
 - [ ] Add DTOs, validation, and global error handler
 
@@ -109,6 +108,7 @@ To get started with the Book Social Network project, follow the setup instructio
 - [ ] Implement RBAC (roles & access control)
 
 #### Technologies
+- [ ] Implement authorization & authentication with hashing
 - [ ] Add Redis caching
 - [ ] Integrate Kafka or RabbitMQ
 - [ ] Add WebSocket for real-time updates
@@ -123,3 +123,4 @@ To get started with the Book Social Network project, follow the setup instructio
 - [ ] Data visualization & reports
 - [ ] Localization and theme support
 - [ ] Payment & subscription support
+- [ ] Different API approaches (REST, GraphQL, gRPC, etc)
