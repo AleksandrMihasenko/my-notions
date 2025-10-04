@@ -8,11 +8,11 @@ jobs:
   frontend-pipeline:
     defaults:
       run:
-        working-directory: my-notions-static
+        working-directory: frontend
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 17.x ]
+        node-version: [ 18.x, 20.x ]
     steps:
       - uses: actions/checkout@v2
       - name: Starting Node.js ${{ matrix.node-version }}
@@ -22,14 +22,14 @@ jobs:
       - name: install modules
         run: npm install
       - name: build production project
-        run: npm run build:prod
+        run: npm run build
         if: always()
       - name: linting typescript
-        run: npm run lint:ts
+        run: npm run lint
         if: always()
       - name: linting scss
-        run: npm run lint:scss
+        run: npm run stylelint
         if: always()
       - name: run unit tests
-        run: npm run test:unit
+        run: npm run test
         if: always()
