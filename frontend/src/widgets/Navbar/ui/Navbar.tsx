@@ -1,5 +1,5 @@
-import React from 'react';
-import { classNames } from '@/shared';
+import React, { useCallback, useState } from 'react';
+import { AppButton, classNames, Modal } from '@/shared';
 import cls from './Navbar.module.scss';
 import { AppLink } from '@/shared';
 import { ThemeSwitcher } from '@/widgets/ThemeSwitcher';
@@ -11,14 +11,24 @@ interface NavbarProps {
 
 const Navbar = ({ className }: NavbarProps) => {
 	const { t } = useTranslation('translation');
+	const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+	const onToggleModal = useCallback(() => {
+		setIsAuthModalOpen((prevState) => !prevState);
+	}, []);
 
 	return (
-		<div className={classNames(cls.navbar, {}, [ className ])}>
+		<div className={classNames(cls.navbar, {}, [className])}>
 			<ThemeSwitcher />
+			<AppButton onClick={onToggleModal}>{t('links.login')}</AppButton>
+
+			<Modal isOpen={isAuthModalOpen} onClose={() => onToggleModal()}>
+
+			</Modal>
 
 			<div className={cls.links}>
-				<AppLink to={'/'}>{ t('links.main') }</AppLink>
-				<AppLink to={'/notes'}>{ t('links.notes') }</AppLink>
+				<AppLink to={'/'}>{t('links.main')}</AppLink>
+				<AppLink to={'/notes'}>{t('links.notes')}</AppLink>
 			</div>
 		</div>
 	);

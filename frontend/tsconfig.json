@@ -14,7 +14,7 @@
     "isolatedModules": true,
     "types": [ "react", "jest" ],
     "allowSyntheticDefaultImports": false,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",

@@ -5,7 +5,8 @@
   "errorPage": "Something went wrong.",
   "links": {
     "main": "Main",
-    "notes": "Notes"
+    "notes": "Notes",
+    "login": "Login"
   },
   "actions": {
     "reload": "Reload page"

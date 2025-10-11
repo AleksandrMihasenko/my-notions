@@ -4,7 +4,6 @@ import { Navbar } from '@/widgets/Navbar';
 import { Sidebar } from '@/widgets/Sidebar';
 import { useTheme } from '@/app/providers/ThemeProvider';
 import { classNames } from '@/shared';
-import './styles/index.scss'
 
 export const App = () => {
 	const { theme } = useTheme();
