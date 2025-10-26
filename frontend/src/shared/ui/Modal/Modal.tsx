@@ -32,6 +32,7 @@ const Modal = (props: ModalProps) => {
 				<div className={cls['overlay']} onClick={closeHandler}>
 					<div className={cls['content']} onClick={contentClickHandler}>
 						{ children }
+						Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur, itaque.
 					</div>
 				</div>
 			</div>
