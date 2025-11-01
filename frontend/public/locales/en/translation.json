@@ -3,12 +3,15 @@
   "notesPage": " Welcome to Notion Clone",
   "notFoundPage": "Page not found.",
   "errorPage": "Something went wrong.",
+  "loginPlaceholder": "Enter login",
+  "passwordPlaceholder": "Enter password",
   "links": {
     "main": "Main",
     "notes": "Notes",
     "login": "Login"
   },
   "actions": {
-    "reload": "Reload page"
+    "reload": "Reload page",
+    "login": "Login"
   }
 }
