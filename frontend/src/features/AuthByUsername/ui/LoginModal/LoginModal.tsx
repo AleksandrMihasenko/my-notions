@@ -1,6 +1,5 @@
 import React from 'react';
 import { classNames, Modal } from '@/shared';
-import cls from './LoginModal.module.scss'
 import LoginForm from '../LoginForm/LoginForm';
 
 interface LoginModalProps {
