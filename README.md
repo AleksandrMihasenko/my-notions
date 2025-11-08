@@ -1,34 +1,45 @@
 # My notions
 
+<div style="border-left: 1px solid grey; padding: 0 8px">
+Single source of truth for the repo: vision → architecture → how to run → roadmap → learning log.
+</div>
+
 ## Table of Contents
 - [Overview](#overview)
-- [Features](#features)
+- [Product idea](#product-idea)
 - [Technologies Used](#technologies-used)
 - [Learning Objectives](#learning-objectives)
 - [Getting Started](#getting-started)
 - [TODO and Ideas](#note-and-ideas)
 
 ## Overview
-My notions is a full-stack application that enables users to write, publish, read articles. It should offer features as user registration, secure email validation, articles management (including creation, updating, sharing), versioning, translating.
-My personal project built to explore backend development, architecture patterns, and moder technologies in practice.
-The application ensures security using JWT tokens and adheres to best practices in REST API design.
-The backend is built with Spring Boot 3 and Spring Security 6, while the frontend is developed using React.
+Personal product to learn backend & systems thinking (security, data, real‑time), then grow into specialization (data / realtime), keeping 80% practice.
 
-## Features
-- User Registration: Users can register for a new account.
-- Email Validation: Accounts are activated using secure email validation codes.
-- User Authentication: Existing users can log in to their accounts securely.
-- Role-based access control.
-- Version history for notes.
-- Full-text search.
-- Multilingual UI and translation notes to different languages.
-- Export to PDF.
-- Notes Management: Users can create, update, share, and archive their notes.
-- Tags Management: Users can create, update, share, and archive their tags.
+Stack: Java + Spring Boot (API), React + TS (UI), MySQL, Docker Compose. Redis (cache), Kafka/RabbitMQ (events), WebSocket (RT updates) — progressively added.
 
-## Technologies Used
-List of technologies.
+Run locally: docker compose up -d → backend on :8080, frontend on :5173 (adjust if changed). OpenAPI at /swagger-ui.html when backend is up.
 
+## Product idea
+A Notion‑like knowledge app: notes, tags, versions, full‑text search, translations, export, collaboration.
+
+Engineering goals:
+* Foundation in backend (Spring security, REST, SQL, migrations, testing).
+* Build real‑time features (WebSocket), event‑driven thinking (Kafka/RabbitMQ), caching (Redis), observability.
+* Explore specializations: (a) Data pipelines/analytics; (b) Real‑time systems.
+* Practice architecture: clean layering, modularization, DDD‑вкусы, CI/CD.
+
+Guiding rules: ship small, document decisions, measure.
+
+## 2) Monorepo layout
+```
+my-notions/
+├─ backend/            # Spring Boot app (REST API, security, data, tests)
+├─ frontend/           # React + TS app (FSD-ish structure, Storybook/Loki)
+├─ deploy/             # docker, nginx, compose, envs
+├─ .github/workflows/  # CI (lint/test/build)
+├─ Makefile            # convenience commands
+└─ README.md           # this document
+```
 ### Backend
 
 - Java
