@@ -1,138 +1,403 @@
-# My notions
+# my-notions
 
-<div style="border-left: 1px solid grey; padding: 0 8px">
-Single source of truth for the repo: vision → architecture → how to run → roadmap → learning log.
-</div>
+> **Learning playground** for backend engineering & specialization exploration
 
-## Table of Contents
+A Notion-like knowledge management app built to master backend fundamentals, then explore three specializations (Real-time, AI, Data Engineering) to discover what I enjoy most.
+
+**Philosophy**: 80% practice, 20% theory. Ship small, iterate fast, document decisions.
+
+---
+
+## 📋 Table of Contents
+
 - [Overview](#overview)
-- [Product idea](#product-idea)
-- [Technologies Used](#technologies-used)
-- [Learning Objectives](#learning-objectives)
+- [Project Phases](#project-phases)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
-- [TODO and Ideas](#note-and-ideas)
+- [Development Progress](#development-progress)
+- [Architecture Decisions](#architecture-decisions)
+- [Learning Approach](#learning-approach)
+- [Notes](#notes)
+- [Contributing](#contributing)
+
+---
 
 ## Overview
-Personal product to learn backend & systems thinking (security, data, real‑time), then grow into specialization (data / realtime), keeping 80% practice.
 
-Stack: Java + Spring Boot (API), React + TS (UI), MySQL, Docker Compose. Redis (cache), Kafka/RabbitMQ (events), WebSocket (RT updates) — progressively added.
+### What is this?
 
-Run locally: docker compose up -d → backend on :8080, frontend on :5173 (adjust if changed). OpenAPI at /swagger-ui.html when backend is up.
+A full-stack Notion clone serving as my **primary learning vehicle** for:
+1. **Backend Foundation** : Spring Boot, SQL, REST, Testing
+2. **Specialization Exploration** : Real-time, AI, Data Engineering
+3. **Portfolio Project**: Deployed production app for interviews
 
-## Product idea
-A Notion‑like knowledge app: notes, tags, versions, full‑text search, translations, export, collaboration.
+### Why this project?
 
-Engineering goals:
-* Foundation in backend (Spring security, REST, SQL, migrations, testing).
-* Build real‑time features (WebSocket), event‑driven thinking (Kafka/RabbitMQ), caching (Redis), observability.
-* Explore specializations: (a) Data pipelines/analytics; (b) Real‑time systems.
-* Practice architecture: clean layering, modularization, DDD‑вкусы, CI/CD.
+- **Practice-first approach**: Learn by building, not by tutorials
+- **Exploration tool**: Try different specializations hands-on
+- **Portfolio piece**: Demonstrate full-stack + specialized skills
+- **Safe playground**: Break things, experiment, learn from mistakes
 
-Guiding rules: ship small, document decisions, measure.
+### Core Features (MVP)
 
-## 2) Monorepo layout
-```
-my-notions/
-├─ backend/            # Spring Boot app (REST API, security, data, tests)
-├─ frontend/           # React + TS app (FSD-ish structure, Storybook/Loki)
-├─ deploy/             # docker, nginx, compose, envs
-├─ .github/workflows/  # CI (lint/test/build)
-├─ Makefile            # convenience commands
-└─ README.md           # this document
-```
+- 📝 Rich text notes with nested structure
+- 🔐 User authentication (JWT)
+- 👥 Workspace collaboration
+- 🔍 Full-text search
+- 🎨 Clean, responsive UI
+
+### Exploration Features
+
+- ⚡ **Real-time**: Collaborative editing, presence, WebSocket sync (Month 3)
+- 🤖 **AI Integration**: Writing assistant, semantic search, RAG (Month 4)
+- 📊 **Data Engineering**: Analytics, event tracking, ETL pipeline (Month 5)
+
+---
+
+## Project Phases
+
+### Phase 1: MVP v0.1  ✅ CURRENT
+**Goal**: Solid fullstack foundation, production-ready code
+
+**Backend**:
+- ✅ User registration & JWT authentication
+- ✅ Workspace management
+- ✅ Pages CRUD (create, read, update, delete)
+- ✅ Spring Boot + PostgreSQL + Flyway
+- ✅ Tests (Unit + Integration, >70% coverage)
+- ✅ OpenAPI documentation
+
+**Frontend**:
+- ✅ React + TypeScript + Vite
+- ✅ Feature-Sliced Design (FSD) architecture
+- ✅ Auth flow (login/register)
+- ✅ Workspace & Pages UI
+- ✅ Tailwind CSS styling
+
+**Deliverable**: Working full-stack app, locally runnable, well-tested
+
+---
+
+### Phase 2: MVP v0.2 - Real-time Exploration
+**Goal**: Deep dive into real-time systems, understand if I like it
+
+**Features**:
+- Typing indicators (show who's typing)
+- Online presence (who's viewing a page)
+- Real-time page updates (WebSocket broadcast)
+- Simple collaborative text editing
+- Cursor position tracking
+
+**Tech**:
+- Spring WebSocket + STOMP
+- WebSocket client (React)
+- Redis pub/sub (basic)
+- Conflict resolution (Last Write Wins)
+
+**Decision Criteria**:
+- Interest (1-10): Is this engaging?
+- Flow (1-10): Do I enter flow state?
+- Complexity (1-10): How challenging?
+- Market (1-10): Job demand?
+- Growth (1-10): Long-term potential?
+
+---
+
+### Phase 3: MVP v0.3 - AI Integration
+**Goal**: Deep dive into AI integration, understand if I like it
+
+**Features**:
+- Writing assistant (continue text, improve, summarize)
+- Tone change (formal/casual)
+- Embeddings generation for pages
+- Semantic search (similarity-based)
+- RAG: "Ask questions about my notes"
+- Streaming responses
+
+**Tech**:
+- OpenAI API / Anthropic Claude
+- Vector embeddings (text-embedding-ada-002)
+- Vector database (Pinecone or pgvector)
+- LangChain (if needed)
+- Cost tracking & optimization
+
+**Decision Criteria**: Same 5 metrics as Real-time
+
+---
+
+### Phase 4: MVP v0.4 - Data Engineering
+**Goal**: Explore data engineering, understand if I like it
+
+**Features** (2 weeks):
+- Event tracking (page views, edits, searches)
+- User behavior analytics
+- Audit log (event sourcing pattern)
+- Simple ETL pipeline
+- Analytics dashboard (basic charts)
+
+**Tech**:
+- Spring Events / custom event system
+- Analytics service
+- Scheduled jobs (aggregations)
+- Simple dashboard (React + recharts)
+
+**Decision Criteria**: Same 5 metrics
+
+---
+
+### Phase 5: Production Ready
+**Goal**: Deploy to production, portfolio-ready
+
+**Tasks**:
+- Security hardening (CORS, rate limiting, input validation)
+- Performance optimization (DB indexes, query tuning, caching)
+- Monitoring & logging (Spring Actuator, structured logs)
+- Docker containerization
+- Deploy to Railway/DigitalOcean
+- CI/CD pipeline (GitHub Actions)
+- Documentation polish
+
+**Deliverable**: Live demo + spectacular README + demo video (optional)
+
+---
+
+### Phase 6: Specialization Deep Dive
+**Based on exploration results**, choose ONE primary specialization and go deep:
+
+- **If Real-time**: OT/CRDT, distributed real-time, scaling WebSockets
+- **If AI**: Advanced RAG, vector DB optimization, LLM orchestration
+- **If Data**: Airflow, dbt, data modeling, quality frameworks
+
+---
+
+## Tech Stack
+
 ### Backend
-
-- Java
-- Spring Boot
-- Spring Web / Validation
-- Spring Security
-- JWT Token Authentication
-- Spring Data JPA
-- OpenAPI and Swagger UI Documentation
+- **Language**: Java 17+
+- **Framework**: Spring Boot 3.x
+  - Spring Web (REST)
+  - Spring Data JDBC → JPA/Hibernate (Month 3+)
+  - Spring Security (JWT)
+  - Spring WebSocket (Month 3)
+  - Spring Events (event-driven)
+- **Database**: MySQL
+- **Migrations**: Flyway
+- **Testing**: JUnit 5, Mockito, TestContainers
+- **API Docs**: OpenAPI / Swagger
 
 ### Frontend
+- **Framework**: React 18+
+- **Language**: TypeScript
+- **Build Tool**: Vite
+- **Architecture**: Feature-Sliced Design (FSD)
+- **Styling**: Tailwind CSS
+- **State**: Context API → Zustand (if needed)
+- **Testing**: Jest, React Testing Library
 
-- React
-- Typescript
-- Component-Based Architecture using FSD approach
-- Unit tests using Jest and React test library
-- Screenshot test using Storybook and Loki
+### Infrastructure
+- **Containerization**: Docker, Docker Compose
+- **CI/CD**: GitHub Actions
+- **Deployment**: DigitalOcean
+- **Monitoring**: maybe Sentry
 
-### Dev and Infrastructure
+### Exploration Tech (Added Progressively)
+- **Real-time** : WebSocket, Redis, STOMP
+- **AI** : OpenAI/Anthropic API, Pinecone/Weaviate, LangChain
+- **Data** : Event system, analytics, scheduled jobs
 
-- Docker + Docker Compose
-- Testcontainers / JUnit
-- MySQL
-- Flyway (DB migrations)
-- Redis
-- Kafka / RabbitMQ
-- Websocket
-- CI / CD (GitHub Actions)
+---
 
-## Learning Objectives
+## Project Structure
 
-By following this project, I would like to learn:
+```
+my-notions/
+├── backend/              # Spring Boot application
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   └── com/mynotions/
+│   │   │   │       ├── controller/   # REST endpoints
+│   │   │   │       ├── service/      # Business logic
+│   │   │   │       ├── repository/   # Data access
+│   │   │   │       ├── entity/       # JPA entities
+│   │   │   │       ├── dto/          # Data transfer objects
+│   │   │   │       └── config/       # Spring configuration
+│   │   │   └── resources/
+│   │   │       ├── db/migration/     # Flyway migrations
+│   │   │       └── application.yml
+│   │   └── test/                     # Tests
+│   ├── pom.xml                       # Maven dependencies
+│   └── README.md                     # Backend docs
+│
+├── frontend/             # React application
+│   ├── src/
+│   │   ├── app/          # App initialization
+│   │   ├── pages/        # Page components (FSD)
+│   │   ├── features/     # Feature modules (FSD)
+│   │   ├── entities/     # Business entities (FSD)
+│   │   ├── shared/       # Shared utilities (FSD)
+│   │   └── widgets/      # Complex UI blocks (FSD)
+│   ├── package.json
+│   └── README.md         # Frontend docs
+│
+├── deploy/               # Deployment configs
+│   ├── docker-compose.yml
+│   ├── Dockerfile.backend
+│   └── Dockerfile.frontend
+│
+├── .github/
+│   └── workflows/        # CI/CD pipelines
+│
+├── Makefile              # Convenience commands
+└── README.md             # This file
+```
 
-- Learn **security**, stateless auth, and role management, securing an application using JWT tokens with Spring Security
-- Registering users and validating accounts via email
-- Utilizing inheritance with Spring Data JPA
-- Implementing the service layer and handling application exceptions
-- Object validation using JSR-303 and Spring Validation
-- Handling custom exceptions
-- Implementing pagination and REST API best practices
-- Using Spring Profiles for environment-specific configurations
-- Documenting APIs using OpenAPI and Swagger UI
-- Modularize backend (Clean Architecture), learn **separation of concerns** and scalable structure
-- Create multi-module architecture, prepare for **microservices** or **modular monolith** design
-- Learn **event-driven architecture** and message brokering, implement Kafka / RabbitMQ for domain events
-- Understand **in-memory caching**, TTL, and performance optimization, add Redis for caching
-- Set up WebSockets , build **real-time communication** features
-- Create a versioning system for Notes, explore **event sourcing** and content history
-- Dockerized the infrastructure
-- Practice **DevOps basics** and automated testing, add CI/CD with GitHub Actions |
-- Understand **observability** and performance tracking, add monitoring with Grafana/Clickhouse
+See [Backend README](./backend/README.md) and [Frontend README](./frontend/README.md) for details.
+
+---
 
 ## Getting Started
 
-To get started with the Book Social Network project, follow the setup instructions in the respective directories:
+### Prerequisites
+- Java 17+
+- Node.js 18+
+- Docker & Docker Compose
+- PostgreSQL (or use Docker)
 
-- [Backend Setup Instructions]
-- [Frontend Setup Instructions]
+### Quick Start
 
-## TODO and Progress
+```bash
+# 1. Clone the repository
+git clone https://github.com/AleksandrMihasenko/my-notions.git
+cd my-notions
 
-### 🔄 In Progress
-- [ ] Move business logic to a core module (Clean Architecture)
-- [ ] Add DTOs, validation, and global error handler
+# 2. Start infrastructure (MySQL)
+docker-compose up -d
 
-### Done
-- [x] Basic CRUD for Notes and Tags
-- [x] Docker Compose: backend + frontend + MySQL
-- [x] Initial backend architecture: controller-service-dao-repository
-- [x] Basic UI: form to create notes, list rendering
+# 3. Start backend
+cd backend
+./mvnw spring-boot:run
+# Backend runs on http://localhost:8080
+# Swagger UI: http://localhost:8080/swagger-ui.html
 
-### Future Tasks
-#### Architecture
-- [ ] Separate core / infra modules (Clean Architecture)
-- [ ] Implement aggregates, value objects (DDD)
-- [ ] Add domain events + event bus
-- [ ] Implement RBAC (roles & access control)
+# 4. Start frontend (in another terminal)
+cd frontend
+npm install
+npm run dev
+# Frontend runs on http://localhost:5173
+```
 
-#### Technologies
-- [ ] JWT and hashing algorithms
-- [ ] Add Redis caching
-- [ ] Integrate Kafka or RabbitMQ
-- [ ] Add WebSocket for real-time updates
-- [ ] CI/CD pipeline with GitHub Actions
-- [ ] Add monitoring & metrics (Prometheus + Grafana)
+### Development
 
-#### Niches & Experiments
-- [ ] AI-powered summary generation (OpenAI)
-- [ ] Version history for notes
-- [ ] Export to PDF
-- [ ] Real-time collaboration between users
-- [ ] Data visualization & reports
-- [ ] Localization and theme support
-- [ ] Payment & subscription support
-- [ ] Implement authorization & authentication
-- [ ] Different API approaches (REST, GraphQL, gRPC, websockets etc)
+```bash
+# Run backend tests
+cd backend
+./mvnw test
+
+# Run frontend tests
+cd frontend
+npm test
+
+# Build for production
+make build
+```
+
+See detailed setup instructions in:
+- [Backend Setup](./backend/README.md#setup)
+- [Frontend Setup](./frontend/README.md#setup)
+
+---
+
+## Development Progress
+
+### Backend Foundation
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| User Registration | 🔄 In Progress | Entity + endpoint |
+| JWT Authentication | 📋 Planned | Next after registration |
+| Workspace CRUD | 📋 Planned | Month 1 |
+| Pages CRUD | 📋 Planned | Month 1-2 |
+| Tests (>70%) | 📋 Planned | Throughout Month 1-2 |
+| React UI | 📋 Planned | Month 2 |
+
+### Exploration Status
+
+| Phase | Status | Decision |
+|-------|--------|----------|
+| Real-time Systems | 📋 Not Started | TBD Month 3 |
+| AI Integration | 📋 Not Started | TBD Month 4 |
+| Data Engineering | 📋 Not Started | TBD Month 5 |
+
+---
+
+## Architecture Decisions
+
+### Key Decisions Log
+See [Architecture Decision Records](./docs/adr/) for detailed ADRs (coming soon).
+
+### Current Architecture
+
+**Pattern**: Simple Layered Architecture (Controller → Service → Repository)
+
+**Rationale**:
+- Clean separation of concerns
+- Easy to understand and test
+- Good for learning Spring basics
+- Can evolve to Clean Architecture later
+
+### Future Evolution
+
+**Future**: 
+- Add DTO layer (separate Entity from API contracts)
+- Introduce domain events
+- Maybe Clean Architecture (if project grows)
+
+**Possible**:
+- Event-driven patterns
+- CQRS elements (if needed for real-time)
+
+---
+
+## Learning Approach
+
+**80% Practice / 20% Theory**
+
+- **Project first**: Build features, learn concepts as needed
+- **Small iterations**: Ship MVPs, then improve
+- **Test everything**: Learn testing by writing tests
+- **Document decisions**: ADRs for architectural choices
+- **Regular reflection**: Decision logs after each exploration phase
+
+**Not trying to build enterprise product** - trying to **learn effectively** while building something real.
+
+---
+
+## Notes
+
+### What This Project Is
+- ✅ Learning playground
+- ✅ Exploration tool
+- ✅ Portfolio piece
+- ✅ Practice ground for backend engineering
+
+### What This Project Is NOT
+- ❌ Production SaaS product
+- ❌ Trying to compete with Notion
+- ❌ Perfect enterprise architecture (at first)
+- ❌ Tutorial hell - I'm building, not following tutorials
+
+---
+
+## Contributing
+
+This is a personal learning project, but:
+- **Code reviews welcome** - please critique my architecture!
+- **Suggestions appreciated** - especially on best practices
+- **No PRs needed** - this is my learning journey
+---
+
+**Last Updated**: November 2025  
+**Current Phase**: Month 1 - Backend Foundation  
+**Next Milestone**: MVP v1.1
