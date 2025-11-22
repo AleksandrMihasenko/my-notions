@@ -19,7 +19,7 @@ dev-frontend: ## Start Vite dev server (frontend with hot reload)
 
 dev-backend: ## Start Spring Boot backend with hot reload (local db, env vars passed inline)
 	cd backend && \
-	SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/my_notions_network \
+	SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/my_notions_network \
 	SPRING_DATASOURCE_USERNAME=username \
 	SPRING_DATASOURCE_PASSWORD=password \
 	./mvnw spring-boot:run

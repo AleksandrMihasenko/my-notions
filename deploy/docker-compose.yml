@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   backend:
     build:
@@ -9,6 +11,8 @@ services:
       - .env
     networks:
       - notions
+    depends_on:
+      - postgres
 
   frontend:
     build:
@@ -21,19 +25,18 @@ services:
     networks:
       - notions
 
-  mysql:
-    container_name: mysql
-    image: mysql
-    hostname: mysql
+  postgres:
+    container_name: postgres
+    image: postgres:16-alpine
+    hostname: postgres
     environment:
-      MYSQL_USER: username
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_PASSWORD: password
-      MYSQL_DATABASE: my_notions_network
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: my_notions_network
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - 3306:3306
+      - 5432:5432
     networks:
       - notions
     restart: unless-stopped
@@ -46,7 +49,7 @@ services:
 #      - 1025:1025
 
 volumes:
-  mysql_data:
+  postgres_data:
 
 networks:
   notions:
