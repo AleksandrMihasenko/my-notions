@@ -5,6 +5,7 @@ import com.aleksandrm.mynotions.dto.LoginRequest;
 import com.aleksandrm.mynotions.dto.RegisterRequest;
 import com.aleksandrm.mynotions.model.User;
 import com.aleksandrm.mynotions.repository.UserRepository;
+import com.aleksandrm.mynotions.utils.JwtUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,10 +14,12 @@ import java.util.Optional;
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
+    private final JwtUtil jwtUtil;
 
-    public AuthService(UserRepository userRepository, PasswordService passwordService) {
+    public AuthService(UserRepository userRepository, PasswordService passwordService, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordService = passwordService;
+        this.jwtUtil = jwtUtil;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -34,8 +37,9 @@ public class AuthService {
         user.setActive(true);
 
         User savedUser = userRepository.save(user);
+        String token = jwtUtil.generateToken(savedUser);
 
-        return toAuthResponse(savedUser);
+        return toAuthResponse(token, savedUser);
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -51,10 +55,12 @@ public class AuthService {
             throw  new RuntimeException("Invalid credentials");
         }
 
-        return toAuthResponse(savedUser);
+        String token = jwtUtil.generateToken(savedUser);
+
+        return toAuthResponse(token, savedUser);
     }
 
-    private AuthResponse toAuthResponse(User user) {
+    private AuthResponse toAuthResponse(String token, User user) {
         AuthResponse authResponse = new AuthResponse();
         authResponse.setId(user.getId());
         authResponse.setEmail(user.getEmail());
@@ -63,6 +69,7 @@ public class AuthService {
         authResponse.setActive(user.isActive());
         authResponse.setCreatedAt(user.getCreatedAt());
         authResponse.setUpdatedAt(user.getUpdatedAt());
+        authResponse.setToken(token);
         return authResponse;
     }
 }
