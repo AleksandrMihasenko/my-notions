@@ -3,6 +3,12 @@ package com.aleksandrm.mynotions.utils;
 import com.aleksandrm.mynotions.model.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -35,8 +41,27 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token) {
-        // TODO: твоя логика
-        return false;
+        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        JwtParser parser = Jwts.parser()
+                .verifyWith(key)
+                .build();
+
+        try {
+            parser.parseSignedClaims(token);
+            return true;
+
+        } catch (SignatureException e) {
+            return false;
+
+        } catch (ExpiredJwtException e) {
+            return false;
+
+        } catch (MalformedJwtException e) {
+            return false;
+
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public Long getUserIdFromToken(String token) {
