@@ -64,13 +64,20 @@ public class JwtUtil {
         }
     }
 
+
     public Long getUserIdFromToken(String token) {
-        // TODO: твоя логика
-        return (long) 0;
+        return Long.parseLong(getClaimsFromToken(token).getSubject());
     }
 
-    public boolean isTokenExpired(String token) {
-        // TODO: твоя логика
-        return false;
+    public String getEmailFromToken(String token) {
+        return getClaimsFromToken(token).get("email", String.class);
+    }
+
+    private Claims getClaimsFromToken(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        JwtParser parser = Jwts.parser()
+                .verifyWith(key)
+                .build();
+        return parser.parseSignedClaims(token).getPayload();
     }
 }
