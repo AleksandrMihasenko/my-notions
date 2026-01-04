@@ -9,13 +9,10 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Event {
     private Long id;
-    private String email;
-    private String passwordHash;
-    private String fullName;
-    private String role;
-    private boolean isActive;
+    private String eventType;
+    private Long userId;
+    private String metadata;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

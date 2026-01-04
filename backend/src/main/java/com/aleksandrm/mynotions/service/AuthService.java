@@ -4,6 +4,7 @@ import com.aleksandrm.mynotions.dto.AuthResponse;
 import com.aleksandrm.mynotions.dto.LoginRequest;
 import com.aleksandrm.mynotions.dto.RegisterRequest;
 import com.aleksandrm.mynotions.model.User;
+import com.aleksandrm.mynotions.repository.EventRepository;
 import com.aleksandrm.mynotions.repository.UserRepository;
 import com.aleksandrm.mynotions.utils.JwtUtil;
 import org.springframework.stereotype.Service;
@@ -15,11 +16,13 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
     private final JwtUtil jwtUtil;
+    private final EventRepository eventRepository;
 
-    public AuthService(UserRepository userRepository, PasswordService passwordService, JwtUtil jwtUtil) {
+    public AuthService(UserRepository userRepository, PasswordService passwordService, JwtUtil jwtUtil, EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.passwordService = passwordService;
         this.jwtUtil = jwtUtil;
+        this.eventRepository = eventRepository;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -39,6 +42,8 @@ public class AuthService {
         User savedUser = userRepository.save(user);
         String token = jwtUtil.generateToken(savedUser);
 
+        eventRepository.logEvent("USER_REGISTERED", savedUser.getId(), "{}");
+
         return toAuthResponse(token, savedUser);
     }
 
@@ -56,6 +61,8 @@ public class AuthService {
         }
 
         String token = jwtUtil.generateToken(savedUser);
+
+        eventRepository.logEvent("USER_LOGGED_IN", savedUser.getId(), "{}");
 
         return toAuthResponse(token, savedUser);
     }
