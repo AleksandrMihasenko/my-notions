@@ -35,7 +35,7 @@ Modern React application using TypeScript and Feature-Sliced Design architecture
 ## Tech Stack
 
 ### Core
-- **React**: 18+
+- **React**: 19+
 - **TypeScript**: 5+
 - **Build Tool**: Vite
 - **Package Manager**: npm
@@ -45,28 +45,21 @@ Modern React application using TypeScript and Feature-Sliced Design architecture
 - **PostCSS**: CSS processing
 
 ### State Management
-- **Context API**: Initial state (Month 1-2)
-- **Zustand**: Complex state (Month 3+ if needed)
+- **Redux Toolkit**: App state and user slice
 
 ### Routing
-- **React Router**: v6+
+- **React Router**: v7+
 
-### Forms & Validation
-- **React Hook Form**: Form handling
-- **Zod**: Schema validation (maybe)
-
-### HTTP Client
-- **Axios**: API requests
-- **TanStack Query**: Server state (Month 3+ if needed)
+### i18n
+- **i18next**: Locale management and translations
 
 ### Testing
 - **Jest**: Test runner
-- **React Testing Library**: Component tests
-- **MSW**: API mocking (Mock Service Worker)
+- **jsdom**: Browser-like test environment
 
 ### Code Quality
 - **ESLint**: Linting
-- **Prettier**: Code formatting
+- **Stylelint**: SCSS linting
 - **TypeScript**: Type checking
 
 ---
@@ -78,122 +71,49 @@ Using **Feature-Sliced Design (FSD)** methodology:
 ```
 frontend/
 ├── src/
-│   ├── app/                           # Application initialization
-│   │   ├── App.tsx                    # Main app component
-│   │   ├── main.tsx                   # Entry point
-│   │   ├── providers/                 # Global providers
-│   │   │   ├── AuthProvider.tsx       # Auth context
-│   │   │   └── RouterProvider.tsx     # Router setup
-│   │   └── styles/
-│   │       └── index.css              # Global styles + Tailwind
+│   ├── app/                           # App initialization
+│   │   ├── App.tsx
+│   │   ├── providers/
+│   │   │   ├── Router/
+│   │   │   ├── StoreProvider/
+│   │   │   ├── ThemeProvider/
+│   │   │   └── ErrorBoundary/
+│   │   ├── styles/                    # Global styles + themes
+│   │   └── types/                     # TS global typings
 │   │
-│   ├── pages/                         # Page components (FSD layer 1)
-│   │   ├── LoginPage/
-│   │   │   ├── ui/
-│   │   │   │   └── LoginPage.tsx
-│   │   │   └── index.ts
-│   │   ├── RegisterPage/
-│   │   ├── DashboardPage/
-│   │   ├── WorkspacePage/
-│   │   └── PageEditorPage/
+│   ├── pages/                         # Route pages
+│   │   ├── MainPage/
+│   │   ├── NoteListPage/
+│   │   ├── ErrorPage/
+│   │   └── NotFoundPage/
 │   │
-│   ├── widgets/                       # Complex UI blocks (FSD layer 2)
-│   │   ├── Header/
-│   │   │   ├── ui/
-│   │   │   │   └── Header.tsx
-│   │   │   └── index.ts
+│   ├── widgets/                       # UI blocks
+│   │   ├── Navbar/
 │   │   ├── Sidebar/
-│   │   ├── PageTree/                  # Pages hierarchy
-│   │   └── EditorToolbar/
+│   │   └── ThemeSwitcher/
 │   │
-│   ├── features/                      # User features (FSD layer 3)
-│   │   ├── auth/
-│   │   │   ├── login/
-│   │   │   │   ├── ui/
-│   │   │   │   │   └── LoginForm.tsx
-│   │   │   │   ├── model/
-│   │   │   │   │   └── useLogin.ts    # Hook for login logic
-│   │   │   │   └── index.ts
-│   │   │   └── register/
-│   │   │
-│   │   ├── workspace/
-│   │   │   ├── create/
-│   │   │   ├── edit/
-│   │   │   └── delete/
-│   │   │
-│   │   ├── page/
-│   │   │   ├── create/
-│   │   │   ├── edit/
-│   │   │   └── delete/
-│   │   │
-│   │   └── editor/                    # Rich text editing
-│   │       └── basic/
-│   │
-│   ├── entities/                      # Business entities (FSD layer 4)
-│   │   ├── user/
-│   │   │   ├── model/
-│   │   │   │   ├── types.ts           # User type
-│   │   │   │   └── store.ts           # User state (if needed)
-│   │   │   ├── api/
-│   │   │   │   └── userApi.ts         # User API calls
-│   │   │   └── index.ts
-│   │   │
-│   │   ├── workspace/
-│   │   │   ├── model/
-│   │   │   │   └── types.ts
-│   │   │   ├── api/
-│   │   │   │   └── workspaceApi.ts
-│   │   │   ├── ui/
-│   │   │   │   └── WorkspaceCard.tsx  # Reusable workspace component
-│   │   │   └── index.ts
-│   │   │
-│   │   └── page/
+│   ├── features/                      # User features
+│   │   └── AuthByUsername/
 │   │       ├── model/
-│   │       ├── api/
 │   │       └── ui/
 │   │
-│   └── shared/                        # Shared utilities (FSD layer 5)
-│       ├── api/
-│       │   ├── axios.ts               # Axios instance
-│       │   └── interceptors.ts        # JWT interceptor
-│       │
-│       ├── lib/                       # Utilities
-│       │   ├── hooks/
-│       │   │   ├── useAuth.ts         # Auth hook
-│       │   │   └── useDebounce.ts     # Utility hooks
-│       │   ├── utils/
-│       │   │   ├── date.ts            # Date formatting
-│       │   │   └── validation.ts      # Validators
-│       │   └── constants/
-│       │       └── routes.ts          # Route constants
-│       │
-│       ├── ui/                        # Shared UI components
-│       │   ├── Button/
-│       │   │   ├── Button.tsx
-│       │   │   ├── Button.test.tsx
-│       │   │   └── index.ts
-│       │   ├── Input/
-│       │   ├── Modal/
-│       │   ├── Spinner/
-│       │   └── Card/
-│       │
-│       └── types/
-│           └── common.ts              # Common types
-│
-├── public/                            # Static assets
-│   └── logo.svg
-│
-├── tests/                             # Test utilities
-│   ├── setup.ts
-│   └── mocks/
-│       └── handlers.ts                # MSW handlers
+│   ├── entities/                      # Business entities
+│   │   └── User/
+│   │       └── model/
+│   │
+│   └── shared/                        # Shared utilities
+│       ├── assets/
+│       ├── config/
+│       │   ├── i18n/
+│       │   └── routeConfig/
+│       ├── lib/
+│       ├── ui/
+│       └── index.ts
 │
 ├── index.html
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
-├── tailwind.config.js
-├── .eslintrc.json
 └── README.md                          # This file
 ```
 
@@ -229,14 +149,10 @@ cd frontend
 npm install
 ```
 
-### 3. Configure Environment
+### 3. Configure Environment (Optional)
 
-Create `.env.local`:
-
-```env
-VITE_API_URL=http://localhost:8080/api
-VITE_APP_NAME=my-notions
-```
+Vite is already configured to proxy `/api` to `http://localhost:8081`.
+Add a `.env.local` only if you want to override defaults.
 
 ---
 
@@ -269,7 +185,7 @@ Output: `dist/` folder
 npm run preview
 ```
 
-### Linting & Formatting
+### Linting
 
 ```bash
 # Lint
@@ -278,8 +194,8 @@ npm run lint
 # Lint and fix
 npm run lint:fix
 
-# Format with Prettier
-npm run format
+# Stylelint (SCSS)
+npm run stylelint
 ```
 
 ---

@@ -38,7 +38,7 @@ RESTful API backend for a Notion-like knowledge management app. Built with Sprin
 - **Java**: 17+
 - **Spring Boot**: 3.x
 - **Build Tool**: Maven
-- **Database**: MySQL 14+
+- **Database**: PostgreSQL 16+
 
 ### Spring Modules
 - **Spring Web**: REST controllers
@@ -57,7 +57,7 @@ RESTful API backend for a Notion-like knowledge management app. Built with Sprin
 ### Testing
 - **JUnit 5**: Unit tests
 - **Mockito**: Mocking
-- **TestContainers**: Integration tests with real MySQL
+- **TestContainers**: Integration tests with real PostgreSQL
 - **RestAssured**: API testing (optional)
 
 ### Documentation
@@ -71,73 +71,63 @@ RESTful API backend for a Notion-like knowledge management app. Built with Sprin
 backend/
 ├── src/
 │   ├── main/
-│   │   ├── java/com/mynotions/
+│   │   ├── java/com/aleksandrm/mynotions/
 │   │   │   ├── MyNotionsApplication.java       # Main entry point
 │   │   │   │
 │   │   │   ├── controller/                     # REST endpoints
 │   │   │   │   ├── AuthController.java         # /api/auth/*
-│   │   │   │   ├── WorkspaceController.java    # /api/workspaces/*
-│   │   │   │   └── PageController.java         # /api/pages/*
+│   │   │   │   ├── TagController.java          # /api/tags/*
+│   │   │   │   └── NoteController.java         # /api/notes/*
 │   │   │   │
 │   │   │   ├── service/                        # Business logic
 │   │   │   │   ├── AuthService.java
-│   │   │   │   ├── WorkspaceService.java
-│   │   │   │   └── PageService.java
+│   │   │   │   ├── TagService.java
+│   │   │   │   └── NoteService.java
 │   │   │   │
 │   │   │   ├── repository/                     # Data access
-│   │   │   │   ├── UserRepository.java         # JDBC (Month 1-2)
-│   │   │   │   ├── WorkspaceRepository.java    # or JPA (Month 3+)
-│   │   │   │   └── PageRepository.java
+│   │   │   │   ├── UserRepository.java
+│   │   │   │   ├── TagRepository.java
+│   │   │   │   └── NoteRepository.java
 │   │   │   │
-│   │   │   ├── entity/                         # Database models
+│   │   │   ├── model/                          # Domain models
 │   │   │   │   ├── User.java
-│   │   │   │   ├── Workspace.java
-│   │   │   │   └── Page.java
+│   │   │   │   ├── Tag.java
+│   │   │   │   └── Note.java
 │   │   │   │
 │   │   │   ├── dto/                            # Data Transfer Objects
-│   │   │   │   ├── request/
-│   │   │   │   │   ├── RegisterRequest.java
-│   │   │   │   │   └── CreatePageRequest.java
-│   │   │   │   └── response/
-│   │   │   │       ├── AuthResponse.java
-│   │   │   │       └── PageResponse.java
+│   │   │   │   ├── LoginRequest.java
+│   │   │   │   ├── RegisterRequest.java
+│   │   │   │   ├── AuthResponse.java
+│   │   │   │   ├── TagRequestDto.java
+│   │   │   │   ├── TagResponseDto.java
+│   │   │   │   ├── NoteRequestDto.java
+│   │   │   │   └── NoteResponseDto.java
+│   │   │   │
+│   │   │   ├── mapper/                         # DTO mappers
+│   │   │   │   ├── TagMapper.java
+│   │   │   │   └── NoteMapper.java
 │   │   │   │
 │   │   │   ├── config/                         # Configuration
-│   │   │   │   ├── SecurityConfig.java         # JWT, CORS
-│   │   │   │   ├── WebConfig.java              # Web settings
-│   │   │   │   └── OpenApiConfig.java          # Swagger
+│   │   │   │   └── SecurityConfig.java         # JWT, CORS
+│   │   │   │
+│   │   │   ├── security/                       # Security filter
+│   │   │   │   └── JwtAuthenticationFilter.java
 │   │   │   │
 │   │   │   ├── exception/                      # Error handling
-│   │   │   │   ├── GlobalExceptionHandler.java # @ControllerAdvice
-│   │   │   │   ├── NotFoundException.java
-│   │   │   │   └── ValidationException.java
+│   │   │   │   └── GlobalExceptionHandler.java # @ControllerAdvice
 │   │   │   │
-│   │   │   └── util/                           # Utilities
-│   │   │       ├── JwtUtil.java                # JWT helper
-│   │   │       └── PasswordUtil.java           # BCrypt helper
+│   │   │   └── utils/                          # Utilities
+│   │   │       └── JwtUtil.java                # JWT helper
 │   │   │
 │   │   └── resources/
-│   │       ├── application.yml                 # Main config
-│   │       ├── application-dev.yml             # Dev profile
-│   │       ├── application-prod.yml            # Prod profile
+│   │       └── application.properties          # Main config
 │   │       │
 │   │       └── db/migration/                   # Flyway migrations
 │   │           ├── V1__create_users_table.sql
 │   │           ├── V2__create_workspaces_table.sql
 │   │           └── V3__create_pages_table.sql
 │   │
-│   └── test/
-│       └── java/com/mynotions/
-│           ├── controller/                     # Integration tests
-│           │   ├── AuthControllerTest.java     # @SpringBootTest
-│           │   └── PageControllerTest.java     # @WebMvcTest
-│           │
-│           ├── service/                        # Unit tests
-│           │   ├── AuthServiceTest.java        # with Mockito
-│           │   └── PageServiceTest.java
-│           │
-│           └── repository/                     # Repository tests
-│               └── PageRepositoryTest.java     # @DataJdbcTest or TestContainers
+│   └── test/                                   # Tests (planned)
 │
 ├── pom.xml                                     # Maven dependencies
 └── README.md                                   # This file
@@ -165,7 +155,7 @@ backend/
 - **Java 17+** (check: `java -version`)
 - **Maven 3.8+** (check: `mvn -version`)
 - **Docker** (for PostgreSQL)
-- **MySQL 14+** (or use Docker)
+- **PostgreSQL 16+** (or use Docker)
 
 ### 1. Clone & Navigate
 
@@ -174,18 +164,18 @@ git clone https://github.com/AleksandrMihasenko/my-notions.git
 cd my-notions/backend
 ```
 
-### 2. Start MySQL
+### 2. Start PostgreSQL
 
 **Option A: Docker Compose** (Recommended)
 ```bash
 # From project root
-docker-compose up -d postgres
+docker-compose -f deploy/docker-compose.yml up -d postgres
 ```
 
-**Option B: Local MySQL**
+**Option B: Local PostgreSQL**
 ```bash
 # Create database
-createdb mynotions_dev
+createdb my_notions_network
 ```
 
 ### 3. Install Dependencies
@@ -208,9 +198,9 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ./mvnw spring-boot:run
 ```
 
-**Backend runs on**: `http://localhost:8080`
+**Backend runs on**: `http://localhost:8081`
 
-**Swagger UI**: `http://localhost:8080/swagger-ui.html`
+**Swagger UI**: `http://localhost:8081/swagger-ui.html`
 
 ### Production Mode
 
@@ -229,7 +219,7 @@ java -jar target/my-notions-backend-0.0.1-SNAPSHOT.jar
 docker build -t my-notions-backend .
 
 # Run container
-docker run -p 8080:8080 \
+docker run -p 8081:8081 \
   -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/mynotions_dev \
   my-notions-backend
 ```
@@ -327,15 +317,14 @@ class PageControllerTest {
 
 ### Swagger UI
 
-Once running, visit: **http://localhost:8080/swagger-ui.html**
+Once running, visit: **http://localhost:8081/swagger-ui.html**
 
-### Key Endpoints (Planned)
+### Key Endpoints (Current)
 
 #### Authentication
 ```
 POST   /api/auth/register    # Register new user
 POST   /api/auth/login       # Login (get JWT)
-POST   /api/auth/refresh     # Refresh token
 ```
 
 #### Workspaces
@@ -362,14 +351,14 @@ Most endpoints require JWT token:
 
 ```bash
 # 1. Login
-curl -X POST http://localhost:8080/api/auth/login \
+curl -X POST http://localhost:8081/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"password"}'
 
 # Response: {"token": "eyJhbGc..."}
 
 # 2. Use token in requests
-curl http://localhost:8080/api/workspaces \
+curl http://localhost:8081/api/notes \
   -H "Authorization: Bearer eyJhbGc..."
 ```
 

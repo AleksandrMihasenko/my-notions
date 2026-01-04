@@ -181,19 +181,20 @@ A full-stack Notion clone serving as my **primary learning vehicle** for:
   - Spring Security (JWT)
   - Spring WebSocket (Month 3)
   - Spring Events (event-driven)
-- **Database**: MySQL
+- **Database**: PostgreSQL
 - **Migrations**: Flyway
 - **Testing**: JUnit 5, Mockito, TestContainers
 - **API Docs**: OpenAPI / Swagger
 
 ### Frontend
-- **Framework**: React 18+
+- **Framework**: React 19+
 - **Language**: TypeScript
 - **Build Tool**: Vite
 - **Architecture**: Feature-Sliced Design (FSD)
 - **Styling**: Tailwind CSS
-- **State**: Context API → Zustand (if needed)
-- **Testing**: Jest, React Testing Library
+- **State**: Redux Toolkit (early), Context API (where needed)
+- **i18n**: i18next
+- **Testing**: Jest
 
 ### Infrastructure
 - **Containerization**: Docker, Docker Compose
@@ -216,16 +217,19 @@ my-notions/
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/
-│   │   │   │   └── com/mynotions/
+│   │   │   │   └── com/aleksandrm/mynotions/
 │   │   │   │       ├── controller/   # REST endpoints
 │   │   │   │       ├── service/      # Business logic
 │   │   │   │       ├── repository/   # Data access
-│   │   │   │       ├── entity/       # JPA entities
+│   │   │   │       ├── model/        # Domain models
 │   │   │   │       ├── dto/          # Data transfer objects
-│   │   │   │       └── config/       # Spring configuration
+│   │   │   │       ├── mapper/       # DTO mappers
+│   │   │   │       ├── security/     # Auth filters, security config
+│   │   │   │       ├── config/       # Spring configuration
+│   │   │   │       └── utils/        # Helpers (JWT, passwords)
 │   │   │   └── resources/
 │   │   │       ├── db/migration/     # Flyway migrations
-│   │   │       └── application.yml
+│   │   │       └── application.properties
 │   │   └── test/                     # Tests
 │   ├── pom.xml                       # Maven dependencies
 │   └── README.md                     # Backend docs
@@ -272,14 +276,14 @@ See [Backend README](./backend/README.md) and [Frontend README](./frontend/READM
 git clone https://github.com/AleksandrMihasenko/my-notions.git
 cd my-notions
 
-# 2. Start infrastructure (MySQL)
-docker-compose up -d
+# 2. Start infrastructure (PostgreSQL)
+docker-compose -f deploy/docker-compose.yml up -d
 
 # 3. Start backend
 cd backend
 ./mvnw spring-boot:run
-# Backend runs on http://localhost:8080
-# Swagger UI: http://localhost:8080/swagger-ui.html
+# Backend runs on http://localhost:8081
+# Swagger UI: http://localhost:8081/swagger-ui.html
 
 # 4. Start frontend (in another terminal)
 cd frontend
@@ -315,12 +319,12 @@ See detailed setup instructions in:
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| User Registration | 🔄 In Progress | Entity + endpoint |
-| JWT Authentication | 📋 Planned | Next after registration |
+| User Registration | ✅ Done | Auth flow working |
+| JWT Authentication | ✅ Done | Login/register issues tokens |
 | Workspace CRUD | 📋 Planned | Month 1 |
 | Pages CRUD | 📋 Planned | Month 1-2 |
 | Tests (>70%) | 📋 Planned | Throughout Month 1-2 |
-| React UI | 📋 Planned | Month 2 |
+| React UI | 🔄 In Progress | Scaffolding in place |
 
 ### Exploration Status
 
