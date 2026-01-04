@@ -1,4 +1,3 @@
-target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -40,3 +39,7 @@ target/
 *storybook.log
 my-notions-static/.cache/storybook
 my-notions-static/storybook-static
+deploy/.env
+
+CLAUDE.md
+.claude-context/
