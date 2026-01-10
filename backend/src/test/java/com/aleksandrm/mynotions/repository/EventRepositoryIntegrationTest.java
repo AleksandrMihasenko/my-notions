@@ -43,7 +43,7 @@ public class EventRepositoryIntegrationTest {
     }
 
     @Test
-    @DisplayName("logEvent saves event to database")
+    @DisplayName("Register/Login: logEvent saves event to database")
     void logEventSavesEventToDatabase() {
         // Arrange
         String eventType = "TEST_EVENT";

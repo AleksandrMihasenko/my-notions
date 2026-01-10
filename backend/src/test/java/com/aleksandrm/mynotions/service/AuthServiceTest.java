@@ -46,10 +46,10 @@ class AuthServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
         when(jwtUtil.generateToken(savedUser)).thenReturn("token");
 
-        //Act
+        // Act
         var response = authService.register(request);
 
-        //Assert
+        // Assert
         assertNotNull(response);
         assertEquals("token", response.getToken());
         assertEquals(1L, response.getId());
@@ -59,7 +59,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("Register: existing email -> throws exception")
     void registerExistingEmailThrowsError() {
-        //Arrange
+        // Arrange
         RegisterRequest request = new RegisterRequest();
         request.setEmail("test@example.com");
         request.setPassword("password");
@@ -70,10 +70,10 @@ class AuthServiceTest {
 
         when(userRepository.getUserByEmail("test@example.com")).thenReturn(Optional.of(existingUser));
 
-        //Act
+        // Act
         assertThrows(RuntimeException.class, () -> authService.register(request));
 
-        //Assert
+        // Assert
         verify(userRepository, never()).save(any(User.class));
         verify(eventRepository, never()).logEvent(anyString(), anyLong(), anyString());
     }
@@ -81,7 +81,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("Login: valid credentials -> returns auth response")
     void loginValidCredentialsReturnsAuthResponse() {
-        //Arrange
+        // Arrange
         LoginRequest request = new LoginRequest();
         request.setEmail("test@example.com");
         request.setPassword("password");
@@ -95,10 +95,10 @@ class AuthServiceTest {
         when(passwordService.match(request.getPassword(), savedUser.getPasswordHash())).thenReturn(true);
         when(jwtUtil.generateToken(savedUser)).thenReturn("token");
 
-        //Act
+        // Act
         var response = authService.login(request);
 
-        //Assert
+        // Assert
         assertNotNull(response);
         assertEquals("token", response.getToken());
         assertEquals(1L, response.getId());
@@ -109,24 +109,24 @@ class AuthServiceTest {
     @Test
     @DisplayName("Login: email not found -> throws exception")
     void loginInvalidEmailThrowsError() {
-        //Arrange
+        // Arrange
         LoginRequest request = new LoginRequest();
         request.setEmail("test@example.com");
         request.setPassword("password");
 
         when(userRepository.getUserByEmail("test@example.com")).thenReturn(Optional.empty());
 
-        //Act
+        // Act
         assertThrows(RuntimeException.class, () -> authService.login(request));
 
-        //Assert
+        // Assert
         verify(eventRepository, never()).logEvent(anyString(), anyLong(), anyString());
     }
 
     @Test
     @DisplayName("Login: invalid credentials -> throws exception")
     void loginInvalidCredentialsThrowsError() {
-        //Arrange
+        // Arrange
         LoginRequest request = new LoginRequest();
         request.setEmail("test@example.com");
         request.setPassword("password");
@@ -139,10 +139,10 @@ class AuthServiceTest {
         when(userRepository.getUserByEmail("test@example.com")).thenReturn(Optional.of(savedUser));
         when(passwordService.match(request.getPassword(), savedUser.getPasswordHash())).thenReturn(false);
 
-        //Act
+        // Act
         assertThrows(RuntimeException.class, () -> authService.login(request));
 
-        //Assert
+        // Assert
         verify(eventRepository, never()).logEvent(anyString(), anyLong(), anyString());
     }
 }
