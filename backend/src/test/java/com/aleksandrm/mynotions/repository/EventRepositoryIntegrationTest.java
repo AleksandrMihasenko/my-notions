@@ -22,10 +22,8 @@ public class EventRepositoryIntegrationTest {
 
     @Autowired
     private EventRepository eventRepository;
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
     private Long userId;
 
     @BeforeEach

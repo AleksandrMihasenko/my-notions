@@ -24,7 +24,6 @@ public class UserRepositoryIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
