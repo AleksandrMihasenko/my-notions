@@ -68,7 +68,6 @@ public class UserRepository {
                     u.setRole(rs.getString("role"));
                     u.setActive(rs.getBoolean("is_active"));
 
-                    // Добавь timestamps!
                     Timestamp createdAt = rs.getTimestamp("created_at");
                     if (createdAt != null) {
                         u.setCreatedAt(createdAt.toLocalDateTime());

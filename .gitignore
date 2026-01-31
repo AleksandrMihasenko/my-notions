@@ -42,4 +42,4 @@ my-notions-static/storybook-static
 deploy/.env
 
 CLAUDE.md
-.claude-context/
+claude-context/
