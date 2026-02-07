@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Repository
 public class WorkspaceRepository {
@@ -15,6 +16,29 @@ public class WorkspaceRepository {
     @Autowired
     public WorkspaceRepository(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
+
+    public List<Workspace> findAllByOwnerId(Long ownerId) {
+        String sql = "SELECT * FROM workspaces WHERE owner_id = ?";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Workspace w = new Workspace();
+            w.setId(rs.getLong("id"));
+            w.setName(rs.getString("name"));
+            w.setOwnerId(rs.getLong("owner_id"));
+
+            Timestamp createdAt = rs.getTimestamp("created_at");
+            if (createdAt != null) {
+                w.setCreatedAt(createdAt.toLocalDateTime());
+            }
+
+            Timestamp updatedAt = rs.getTimestamp("updated_at");
+            if (updatedAt != null) {
+                w.setUpdatedAt(updatedAt.toLocalDateTime());
+            }
+
+            return w;
+        }, ownerId);
     }
 
     public Workspace save(Workspace workspace) {
