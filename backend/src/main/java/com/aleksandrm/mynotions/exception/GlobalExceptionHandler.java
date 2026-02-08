@@ -53,6 +53,10 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);  // 404
         }
 
+        if (message != null && message.contains("Page not found")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);  // 404
+        }
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Internal server error");
     }
