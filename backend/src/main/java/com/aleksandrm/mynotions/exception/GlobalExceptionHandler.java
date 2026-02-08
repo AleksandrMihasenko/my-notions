@@ -49,6 +49,10 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(message);  // 401
         }
 
+        if (message != null && message.contains("Workspace not found")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);  // 404
+        }
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Internal server error");
     }
