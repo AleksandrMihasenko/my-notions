@@ -3,6 +3,7 @@ package com.aleksandrm.mynotions.service;
 import com.aleksandrm.mynotions.dto.WorkspaceCreateRequest;
 import com.aleksandrm.mynotions.dto.WorkspaceResponse;
 import com.aleksandrm.mynotions.dto.WorkspaceUpdateRequest;
+import com.aleksandrm.mynotions.exception.WorkspaceNotFoundException;
 import com.aleksandrm.mynotions.model.Workspace;
 import com.aleksandrm.mynotions.repository.WorkspaceRepository;
 import com.aleksandrm.mynotions.security.PrincipalUser;
@@ -38,7 +39,7 @@ public class WorkspaceService {
 
         Optional<Workspace> workspace = workspaceRepository.findByIdAndOwnerId(workspaceId, user.getId());
         if (workspace.isEmpty()) {
-            throw new RuntimeException("Workspace not found");
+            throw new WorkspaceNotFoundException("Workspace not found");
         } else {
             return toResponse(workspace.get());
         }
@@ -67,7 +68,7 @@ public class WorkspaceService {
         Optional<Workspace> updated = workspaceRepository.update(workspace, id, user.getId());
 
         if (updated.isEmpty()) {
-            throw new RuntimeException("Workspace not found");
+            throw new WorkspaceNotFoundException("Workspace not found");
         }
 
         return toResponse(updated.get());
@@ -80,7 +81,7 @@ public class WorkspaceService {
         boolean isDeleted = workspaceRepository.deleteByIdAndOwnerId(id, user.getId());
 
         if (!isDeleted) {
-            throw new RuntimeException("Workspace not found");
+            throw new WorkspaceNotFoundException("Workspace not found");
         }
     }
 

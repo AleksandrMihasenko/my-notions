@@ -2,6 +2,8 @@ package com.aleksandrm.mynotions.service;
 
 import com.aleksandrm.mynotions.dto.LoginRequest;
 import com.aleksandrm.mynotions.dto.RegisterRequest;
+import com.aleksandrm.mynotions.exception.EmailAlreadyTakenException;
+import com.aleksandrm.mynotions.exception.InvalidCredentialsException;
 import com.aleksandrm.mynotions.model.User;
 import com.aleksandrm.mynotions.repository.EventRepository;
 import com.aleksandrm.mynotions.repository.UserRepository;
@@ -71,7 +73,7 @@ class AuthServiceTest {
         when(userRepository.getUserByEmail("test@example.com")).thenReturn(Optional.of(existingUser));
 
         // Act
-        assertThrows(RuntimeException.class, () -> authService.register(request));
+        assertThrows(EmailAlreadyTakenException.class, () -> authService.register(request));
 
         // Assert
         verify(userRepository, never()).save(any(User.class));
@@ -117,7 +119,7 @@ class AuthServiceTest {
         when(userRepository.getUserByEmail("test@example.com")).thenReturn(Optional.empty());
 
         // Act
-        assertThrows(RuntimeException.class, () -> authService.login(request));
+        assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
 
         // Assert
         verify(eventRepository, never()).logEvent(anyString(), anyLong(), anyString());
@@ -140,7 +142,7 @@ class AuthServiceTest {
         when(passwordService.match(request.getPassword(), savedUser.getPasswordHash())).thenReturn(false);
 
         // Act
-        assertThrows(RuntimeException.class, () -> authService.login(request));
+        assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
 
         // Assert
         verify(eventRepository, never()).logEvent(anyString(), anyLong(), anyString());

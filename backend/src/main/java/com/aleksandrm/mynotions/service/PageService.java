@@ -3,6 +3,8 @@ package com.aleksandrm.mynotions.service;
 import com.aleksandrm.mynotions.dto.PageCreateRequest;
 import com.aleksandrm.mynotions.dto.PageResponse;
 import com.aleksandrm.mynotions.dto.PageUpdateRequest;
+import com.aleksandrm.mynotions.exception.PageNotFoundException;
+import com.aleksandrm.mynotions.exception.WorkspaceNotFoundException;
 import com.aleksandrm.mynotions.model.Page;
 import com.aleksandrm.mynotions.repository.PageRepository;
 import com.aleksandrm.mynotions.security.PrincipalUser;
@@ -33,7 +35,7 @@ public class PageService {
 
         Optional<Page> saved = pageRepository.save(page, user.getId());
         if (saved.isEmpty()) {
-            throw new RuntimeException("Workspace not found");
+            throw new WorkspaceNotFoundException("Workspace not found");
         }
 
         return toResponse(saved.get());
@@ -53,7 +55,7 @@ public class PageService {
 
         Optional<Page> page = pageRepository.findByIdAndOwnerId(pageId, user.getId());
         if (page.isEmpty()) {
-            throw new RuntimeException("Page not found");
+            throw new PageNotFoundException("Page not found");
         }
 
         return toResponse(page.get());
@@ -69,7 +71,7 @@ public class PageService {
 
         Optional<Page> updated = pageRepository.updateByIdAndOwnerId(page, pageId, user.getId());
         if (updated.isEmpty()) {
-            throw new RuntimeException("Page not found");
+            throw new PageNotFoundException("Page not found");
         }
 
         return toResponse(updated.get());
@@ -80,7 +82,7 @@ public class PageService {
 
         boolean deleted = pageRepository.softDeleteByIdAndOwnerId(pageId, user.getId());
         if (!deleted) {
-            throw new RuntimeException("Page not found");
+            throw new PageNotFoundException("Page not found");
         }
     }
 

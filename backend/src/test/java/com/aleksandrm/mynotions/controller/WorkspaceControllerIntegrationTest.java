@@ -162,6 +162,66 @@ public class WorkspaceControllerIntegrationTest extends PostgresIntegrationTestB
         assertFalse(names.contains("Workspace X"));
     }
 
+    @Test
+    @DisplayName("Get workspace by id: owner requests existing workspace -> returns 200")
+    void getWorkspaceByIdOwnerRequestsExistingWorkspaceReturnsOk() {
+        String token = registerAndGetToken("workspace_get@email.com", "password");
+        ResponseEntity<Map<String, Object>> createResponse = createWorkspace(token, "Workspace for get");
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        assertNotNull(createResponse.getBody());
+
+        Long workspaceId = ((Number) createResponse.getBody().get("id")).longValue();
+
+        ResponseEntity<Map<String, Object>> response = getWorkspaceById(token, workspaceId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(workspaceId, ((Number) response.getBody().get("id")).longValue());
+        assertEquals("Workspace for get", response.getBody().get("name"));
+    }
+
+    @Test
+    @DisplayName("Update workspace: owner sends valid data -> returns 200 and updates DB")
+    void updateWorkspaceOwnerSendsValidDataReturnsOk() {
+        String token = registerAndGetToken("workspace_update@email.com", "password");
+        ResponseEntity<Map<String, Object>> createResponse = createWorkspace(token, "Old workspace");
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        assertNotNull(createResponse.getBody());
+
+        Long workspaceId = ((Number) createResponse.getBody().get("id")).longValue();
+        ResponseEntity<Map<String, Object>> updateResponse = updateWorkspace(token, workspaceId, "Updated workspace");
+
+        assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+        assertNotNull(updateResponse.getBody());
+        assertEquals("Updated workspace", updateResponse.getBody().get("name"));
+
+        String workspaceName = jdbcTemplate.queryForObject(
+                "SELECT name FROM workspaces WHERE id = ?",
+                String.class,
+                workspaceId
+        );
+        assertEquals("Updated workspace", workspaceName);
+    }
+
+    @Test
+    @DisplayName("Delete workspace: owner deletes existing workspace -> returns 204 and workspace not found later")
+    void deleteWorkspaceOwnerDeletesExistingWorkspaceReturnsNoContent() {
+        String token = registerAndGetToken("workspace_delete@email.com", "password");
+        ResponseEntity<Map<String, Object>> createResponse = createWorkspace(token, "Workspace to delete");
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        assertNotNull(createResponse.getBody());
+
+        Long workspaceId = ((Number) createResponse.getBody().get("id")).longValue();
+
+        ResponseEntity<Void> deleteResponse = deleteWorkspace(token, workspaceId);
+        ResponseEntity<String> getAfterDeleteResponse = getWorkspaceByIdAsString(token, workspaceId);
+
+        assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, getAfterDeleteResponse.getStatusCode());
+        assertNotNull(getAfterDeleteResponse.getBody());
+        assertTrue(getAfterDeleteResponse.getBody().contains("Workspace not found"));
+    }
+
     private String registerAndGetToken(String email, String password) {
         Map<String, String> request = Map.of("email", email, "password", password);
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
@@ -189,6 +249,59 @@ public class WorkspaceControllerIntegrationTest extends PostgresIntegrationTestB
                 HttpMethod.POST,
                 entity,
                 new ParameterizedTypeReference<>() {}
+        );
+    }
+
+    private ResponseEntity<Map<String, Object>> getWorkspaceById(String token, Long workspaceId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        return restTemplate.exchange(
+                "/api/workspaces/" + workspaceId,
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
+    private ResponseEntity<String> getWorkspaceByIdAsString(String token, Long workspaceId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        return restTemplate.exchange(
+                "/api/workspaces/" + workspaceId,
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+    }
+
+    private ResponseEntity<Map<String, Object>> updateWorkspace(String token, Long workspaceId, String name) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(Map.of("name", name), headers);
+
+        return restTemplate.exchange(
+                "/api/workspaces/" + workspaceId,
+                HttpMethod.PUT,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
+    private ResponseEntity<Void> deleteWorkspace(String token, Long workspaceId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        return restTemplate.exchange(
+                "/api/workspaces/" + workspaceId,
+                HttpMethod.DELETE,
+                entity,
+                Void.class
         );
     }
 }

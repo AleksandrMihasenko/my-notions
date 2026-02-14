@@ -35,28 +35,29 @@ public class GlobalExceptionHandler {
 
     /**
      * Handle business logic errors
-     * Later will be replaced with domain exceptions
      */
+    @ExceptionHandler(EmailAlreadyTakenException.class)
+    public ResponseEntity<String> handleEmailAlreadyTaken(EmailAlreadyTakenException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<String> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(WorkspaceNotFoundException.class)
+    public ResponseEntity<String> handleWorkspaceNotFound(WorkspaceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(PageNotFoundException.class)
+    public ResponseEntity<String> handlePageNotFound(PageNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
-        String message = ex.getMessage();
-
-        if (message != null && message.contains("Email already")) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(message);  // 409
-        }
-
-        if (message != null && message.contains("Invalid credentials")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(message);  // 401
-        }
-
-        if (message != null && message.contains("Workspace not found")) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);  // 404
-        }
-
-        if (message != null && message.contains("Page not found")) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);  // 404
-        }
-
+    public ResponseEntity<String> handleUnexpectedRuntime(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Internal server error");
     }

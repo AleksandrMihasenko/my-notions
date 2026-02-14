@@ -3,6 +3,8 @@ package com.aleksandrm.mynotions.service;
 import com.aleksandrm.mynotions.dto.AuthResponse;
 import com.aleksandrm.mynotions.dto.LoginRequest;
 import com.aleksandrm.mynotions.dto.RegisterRequest;
+import com.aleksandrm.mynotions.exception.EmailAlreadyTakenException;
+import com.aleksandrm.mynotions.exception.InvalidCredentialsException;
 import com.aleksandrm.mynotions.model.User;
 import com.aleksandrm.mynotions.repository.EventRepository;
 import com.aleksandrm.mynotions.repository.UserRepository;
@@ -29,7 +31,7 @@ public class AuthService {
         Optional<User> existingUser = userRepository.getUserByEmail(request.getEmail());
 
         if (existingUser.isPresent()) {
-            throw  new RuntimeException("Email already taken");
+            throw new EmailAlreadyTakenException("Email already taken");
         }
 
         User user = new User();
@@ -50,14 +52,14 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         Optional<User> user = userRepository.getUserByEmail(request.getEmail());
         if (user.isEmpty()) {
-            throw  new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
 
         User savedUser = user.get();
 
         boolean isPasswordCorrect = passwordService.match(request.getPassword(), user.get().getPasswordHash());
         if (!isPasswordCorrect) {
-            throw  new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
 
         String token = jwtUtil.generateToken(savedUser);
