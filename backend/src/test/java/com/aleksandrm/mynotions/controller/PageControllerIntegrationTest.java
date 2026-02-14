@@ -1,0 +1,267 @@
+package com.aleksandrm.mynotions.controller;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Testcontainers
+public class PageControllerIntegrationTest {
+    @Container
+    @ServiceConnection
+    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void setUp() {
+        jdbcTemplate.update("DELETE FROM pages");
+        jdbcTemplate.update("DELETE FROM workspaces");
+        jdbcTemplate.update("DELETE FROM events");
+        jdbcTemplate.update("DELETE FROM users");
+    }
+
+    @Test
+    @DisplayName("Create page: user sends valid data -> returns 201")
+    void createPageValidDataReturnsCreated() {
+        String token = registerAndGetToken("page_create@email.com", "password");
+        Long workspaceId = createWorkspaceAndGetId(token, "Pages Workspace");
+
+        ResponseEntity<Map<String, Object>> response = createPage(token, workspaceId, "Page 1", "Initial content");
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Page 1", response.getBody().get("title"));
+        assertNotNull(response.getBody().get("id"));
+    }
+
+    @Test
+    @DisplayName("Get page by id: owner requests existing page -> returns 200")
+    void getPageByIdOwnerRequestsExistingPageReturnsOk() {
+        String token = registerAndGetToken("page_get@email.com", "password");
+        Long workspaceId = createWorkspaceAndGetId(token, "Pages Workspace");
+        Long pageId = createPageAndGetId(token, workspaceId, "Page 1", "Initial content");
+
+        ResponseEntity<Map<String, Object>> response = getPageById(token, pageId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Page 1", response.getBody().get("title"));
+    }
+
+    @Test
+    @DisplayName("Update page: owner sends valid data -> returns 200")
+    void updatePageOwnerSendsValidDataReturnsOk() {
+        String token = registerAndGetToken("page_update@email.com", "password");
+        Long workspaceId = createWorkspaceAndGetId(token, "Pages Workspace");
+        Long pageId = createPageAndGetId(token, workspaceId, "Page 1", "Initial content");
+
+        ResponseEntity<Map<String, Object>> response = updatePage(token, pageId, "Updated title", "Updated content");
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Updated title", response.getBody().get("title"));
+    }
+
+    @Test
+    @DisplayName("Delete page: owner deletes existing page -> returns 204 and page not found later")
+    void deletePageOwnerDeletesExistingPageReturnsNoContent() {
+        String token = registerAndGetToken("page_delete@email.com", "password");
+        Long workspaceId = createWorkspaceAndGetId(token, "Pages Workspace");
+        Long pageId = createPageAndGetId(token, workspaceId, "Page 1", "Initial content");
+
+        ResponseEntity<Void> deleteResponse = deletePage(token, pageId);
+        ResponseEntity<String> getAfterDeleteResponse = getPageByIdAsString(token, pageId);
+
+        assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, getAfterDeleteResponse.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Create page: user sends blank title -> returns 400")
+    void createPageBlankTitleReturnsBadRequest() {
+        String token = registerAndGetToken("validation@email.com", "password");
+        Long workspaceId = createWorkspaceAndGetId(token, "Validation Workspace");
+
+        HttpHeaders headers = authJsonHeaders(token);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(
+                Map.of("title", "", "content", "content"),
+                headers
+        );
+
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                "/api/workspaces/" + workspaceId + "/pages",
+                HttpMethod.POST,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().toString().contains("title"));
+    }
+
+    @Test
+    @DisplayName("Get page by id: another user requests foreign page -> returns 404")
+    void anotherUserCannotReadForeignPage() {
+        String ownerToken = registerAndGetToken("owner@email.com", "password");
+        String anotherToken = registerAndGetToken("another@email.com", "password");
+        Long workspaceId = createWorkspaceAndGetId(ownerToken, "Owner Workspace");
+        Long pageId = createPageAndGetId(ownerToken, workspaceId, "Private page", "secret");
+
+        ResponseEntity<String> response = getPageByIdAsString(anotherToken, pageId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Get workspace pages: user lists pages after delete -> deleted page not returned")
+    void deletedPageIsNotReturnedInWorkspaceList() {
+        String token = registerAndGetToken("list@email.com", "password");
+        Long workspaceId = createWorkspaceAndGetId(token, "List Workspace");
+        Long pageId = createPageAndGetId(token, workspaceId, "To delete", "content");
+
+        ResponseEntity<Void> deleteResponse = deletePage(token, pageId);
+        assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
+
+        HttpEntity<Void> entity = new HttpEntity<>(authHeaders(token));
+        ResponseEntity<List<Map<String, Object>>> listResponse = restTemplate.exchange(
+                "/api/workspaces/" + workspaceId + "/pages",
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+
+        assertEquals(HttpStatus.OK, listResponse.getStatusCode());
+        assertNotNull(listResponse.getBody());
+        assertEquals(0, listResponse.getBody().size());
+    }
+
+    private String registerAndGetToken(String email, String password) {
+        Map<String, String> request = Map.of("email", email, "password", password);
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                "/api/auth/register",
+                HttpMethod.POST,
+                new HttpEntity<>(request),
+                new ParameterizedTypeReference<>() {}
+        );
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        return (String) response.getBody().get("token");
+    }
+
+    private Long createWorkspaceAndGetId(String token, String workspaceName) {
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(
+                Map.of("name", workspaceName),
+                authJsonHeaders(token)
+        );
+
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                "/api/workspaces",
+                HttpMethod.POST,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        return ((Number) response.getBody().get("id")).longValue();
+    }
+
+    private Long createPageAndGetId(String token, Long workspaceId, String title, String content) {
+        ResponseEntity<Map<String, Object>> response = createPage(token, workspaceId, title, content);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        return ((Number) response.getBody().get("id")).longValue();
+    }
+
+    private ResponseEntity<Map<String, Object>> createPage(String token, Long workspaceId, String title, String content) {
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(
+                Map.of("title", title, "content", content),
+                authJsonHeaders(token)
+        );
+
+        return restTemplate.exchange(
+                "/api/workspaces/" + workspaceId + "/pages",
+                HttpMethod.POST,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
+    private ResponseEntity<Map<String, Object>> getPageById(String token, Long pageId) {
+        HttpEntity<Void> entity = new HttpEntity<>(authHeaders(token));
+        return restTemplate.exchange(
+                "/api/pages/" + pageId,
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
+    private ResponseEntity<String> getPageByIdAsString(String token, Long pageId) {
+        HttpEntity<Void> entity = new HttpEntity<>(authHeaders(token));
+        return restTemplate.exchange(
+                "/api/pages/" + pageId,
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+    }
+
+    private ResponseEntity<Map<String, Object>> updatePage(String token, Long pageId, String title, String content) {
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(
+                Map.of("title", title, "content", content),
+                authJsonHeaders(token)
+        );
+
+        return restTemplate.exchange(
+                "/api/pages/" + pageId,
+                HttpMethod.PUT,
+                entity,
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
+    private ResponseEntity<Void> deletePage(String token, Long pageId) {
+        HttpEntity<Void> entity = new HttpEntity<>(authHeaders(token));
+        return restTemplate.exchange(
+                "/api/pages/" + pageId,
+                HttpMethod.DELETE,
+                entity,
+                Void.class
+        );
+    }
+
+    private HttpHeaders authHeaders(String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        return headers;
+    }
+
+    private HttpHeaders authJsonHeaders(String token) {
+        HttpHeaders headers = authHeaders(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
+    }
+}
