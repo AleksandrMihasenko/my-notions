@@ -1,18 +1,13 @@
 package com.aleksandrm.mynotions.controller;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.postgresql.PostgreSQLContainer;
+import com.aleksandrm.mynotions.support.PostgresIntegrationTestBase;
 
 import java.util.List;
 import java.util.Map;
@@ -22,25 +17,10 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-public class WorkspaceControllerIntegrationTest {
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
+public class WorkspaceControllerIntegrationTest extends PostgresIntegrationTestBase {
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @BeforeEach
-    void setUp() {
-        jdbcTemplate.update("DELETE FROM pages");
-        jdbcTemplate.update("DELETE FROM workspaces");
-        jdbcTemplate.update("DELETE FROM events");
-        jdbcTemplate.update("DELETE FROM users");
-    }
 
     @Test
     @DisplayName("Create workspace: valid request (token + body) -> returns 201 and row in DB")

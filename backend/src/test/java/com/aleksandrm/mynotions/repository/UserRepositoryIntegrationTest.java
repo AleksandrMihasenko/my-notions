@@ -1,37 +1,21 @@
 package com.aleksandrm.mynotions.repository;
+
 import com.aleksandrm.mynotions.model.User;
+import com.aleksandrm.mynotions.support.PostgresIntegrationTestBase;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Testcontainers
-public class UserRepositoryIntegrationTest {
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
+public class UserRepositoryIntegrationTest extends PostgresIntegrationTestBase {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @BeforeEach
-    void setUp() {
-        jdbcTemplate.update("DELETE FROM events");
-        jdbcTemplate.update("DELETE FROM users");
-    }
 
     @Test
     @DisplayName("Register: save user -> return generated fields")

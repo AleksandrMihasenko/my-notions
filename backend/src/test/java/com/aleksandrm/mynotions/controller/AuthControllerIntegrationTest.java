@@ -1,41 +1,23 @@
 package com.aleksandrm.mynotions.controller;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.postgresql.PostgreSQLContainer;
+import com.aleksandrm.mynotions.support.PostgresIntegrationTestBase;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-public class AuthControllerIntegrationTest {
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
+public class AuthControllerIntegrationTest extends PostgresIntegrationTestBase {
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @BeforeEach
-    void setUp() {
-        jdbcTemplate.update("DELETE FROM events");
-        jdbcTemplate.update("DELETE FROM users");
-    }
 
     @Test
     @DisplayName("Register: user sends valid data -> user registered")
@@ -95,5 +77,67 @@ public class AuthControllerIntegrationTest {
                 "invalid"
         );
         assertEquals(0, count);
+    }
+
+    @Test
+    @DisplayName("Register: user sends existing email -> user gets 409 Conflict")
+    void userSendsExistingEmailAndGetsConflict() {
+        // Arrange
+        Map<String, String> request = Map.of(
+                "email", "duplicate@test.com",
+                "password", "testpassword"
+        );
+
+        ResponseEntity<Map> firstResponse = restTemplate.postForEntity(
+                "/api/auth/register",
+                request,
+                Map.class
+        );
+        assertEquals(HttpStatus.CREATED, firstResponse.getStatusCode());
+
+        // Act
+        ResponseEntity<String> secondResponse = restTemplate.postForEntity(
+                "/api/auth/register",
+                request,
+                String.class
+        );
+
+        // Assert
+        assertEquals(HttpStatus.CONFLICT, secondResponse.getStatusCode());
+        assertNotNull(secondResponse.getBody());
+        assertTrue(secondResponse.getBody().contains("Email already"));
+    }
+
+    @Test
+    @DisplayName("Login: user sends invalid credentials -> user gets 401 Unauthorized")
+    void userSendsInvalidCredentialsAndGetsUnauthorized() {
+        // Arrange
+        Map<String, String> registerRequest = Map.of(
+                "email", "login@test.com",
+                "password", "correctpassword"
+        );
+        ResponseEntity<Map> registerResponse = restTemplate.postForEntity(
+                "/api/auth/register",
+                registerRequest,
+                Map.class
+        );
+        assertEquals(HttpStatus.CREATED, registerResponse.getStatusCode());
+
+        Map<String, String> loginRequest = Map.of(
+                "email", "login@test.com",
+                "password", "wrongpassword"
+        );
+
+        // Act
+        ResponseEntity<String> loginResponse = restTemplate.postForEntity(
+                "/api/auth/login",
+                loginRequest,
+                String.class
+        );
+
+        // Assert
+        assertEquals(HttpStatus.UNAUTHORIZED, loginResponse.getStatusCode());
+        assertNotNull(loginResponse.getBody());
+        assertTrue(loginResponse.getBody().contains("Invalid credentials"));
     }
 }
