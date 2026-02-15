@@ -26,7 +26,7 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
     @DisplayName("Create workspace: valid request (token + body) -> returns 201 and row in DB")
     void createWorkspaceValidRequestReturnsCreated() {
         // Arrange
-        String token = registerAndGetToken("test@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "test@email.com", "password");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -91,7 +91,7 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
     @DisplayName("Create workspace: invalid name -> returns 400")
     void createWorkspaceWithInvalidNameReturnsError() {
         // Arrange
-        String token = registerAndGetToken("test@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "test@email.com", "password");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -125,8 +125,8 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
     @DisplayName("Get workspace: user -> returns only current user workspaces")
     void getWorkspaceReturnsOnlyCurrentUserWorkspaces() {
         // Arrange
-        String user1 = registerAndGetToken("test1@email.com", "password1");
-        String user2 = registerAndGetToken("test2@email.com", "password2");
+        String user1 = registerAndGetToken(restTemplate, "test1@email.com", "password1");
+        String user2 = registerAndGetToken(restTemplate, "test2@email.com", "password2");
 
         ResponseEntity<Map<String, Object>> response1 = createWorkspace(user1, "Workspace 1");
         ResponseEntity<Map<String, Object>> response2 = createWorkspace(user1, "Workspace 2");
@@ -165,7 +165,7 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Get workspace by id: owner requests existing workspace -> returns 200")
     void getWorkspaceByIdOwnerRequestsExistingWorkspaceReturnsOk() {
-        String token = registerAndGetToken("workspace_get@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "workspace_get@email.com", "password");
         ResponseEntity<Map<String, Object>> createResponse = createWorkspace(token, "Workspace for get");
         assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
         assertNotNull(createResponse.getBody());
@@ -183,7 +183,7 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Update workspace: owner sends valid data -> returns 200 and updates DB")
     void updateWorkspaceOwnerSendsValidDataReturnsOk() {
-        String token = registerAndGetToken("workspace_update@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "workspace_update@email.com", "password");
         ResponseEntity<Map<String, Object>> createResponse = createWorkspace(token, "Old workspace");
         assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
         assertNotNull(createResponse.getBody());
@@ -206,7 +206,7 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Delete workspace: owner deletes existing workspace -> returns 204 and workspace not found later")
     void deleteWorkspaceOwnerDeletesExistingWorkspaceReturnsNoContent() {
-        String token = registerAndGetToken("workspace_delete@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "workspace_delete@email.com", "password");
         ResponseEntity<Map<String, Object>> createResponse = createWorkspace(token, "Workspace to delete");
         assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
         assertNotNull(createResponse.getBody());
@@ -225,7 +225,7 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Update workspace: owner updates non-existent workspace -> returns 404")
     void updateWorkspaceOwnerUpdatesNonExistentWorkspaceReturnsNotFound() {
-        String token = registerAndGetToken("workspace_update_404@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "workspace_update_404@email.com", "password");
         long nonExistentWorkspaceId = 999_999L;
 
         ResponseEntity<String> response = updateWorkspaceAsString(token, nonExistentWorkspaceId, "Updated workspace");
@@ -238,7 +238,7 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Delete workspace: owner deletes non-existent workspace -> returns 404")
     void deleteWorkspaceOwnerDeletesNonExistentWorkspaceReturnsNotFound() {
-        String token = registerAndGetToken("workspace_delete_404@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "workspace_delete_404@email.com", "password");
         long nonExistentWorkspaceId = 999_999L;
 
         ResponseEntity<String> response = deleteWorkspaceAsString(token, nonExistentWorkspaceId);

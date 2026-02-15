@@ -23,7 +23,7 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Create page: user sends valid data -> returns 201")
     void createPageValidDataReturnsCreated() {
-        String token = registerAndGetToken("page_create@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "page_create@email.com", "password");
         Long workspaceId = createWorkspaceAndGetId(token, "Pages Workspace");
 
         ResponseEntity<Map<String, Object>> response = createPage(token, workspaceId, "Page 1", "Initial content");
@@ -37,7 +37,7 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Get page by id: owner requests existing page -> returns 200")
     void getPageByIdOwnerRequestsExistingPageReturnsOk() {
-        String token = registerAndGetToken("page_get@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "page_get@email.com", "password");
         Long workspaceId = createWorkspaceAndGetId(token, "Pages Workspace");
         Long pageId = createPageAndGetId(token, workspaceId, "Page 1", "Initial content");
 
@@ -51,7 +51,7 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Update page: owner sends valid data -> returns 200")
     void updatePageOwnerSendsValidDataReturnsOk() {
-        String token = registerAndGetToken("page_update@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "page_update@email.com", "password");
         Long workspaceId = createWorkspaceAndGetId(token, "Pages Workspace");
         Long pageId = createPageAndGetId(token, workspaceId, "Page 1", "Initial content");
 
@@ -65,7 +65,7 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Delete page: owner deletes existing page -> returns 204 and page not found later")
     void deletePageOwnerDeletesExistingPageReturnsNoContent() {
-        String token = registerAndGetToken("page_delete@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "page_delete@email.com", "password");
         Long workspaceId = createWorkspaceAndGetId(token, "Pages Workspace");
         Long pageId = createPageAndGetId(token, workspaceId, "Page 1", "Initial content");
 
@@ -79,7 +79,7 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Create page: user sends blank title -> returns 400")
     void createPageBlankTitleReturnsBadRequest() {
-        String token = registerAndGetToken("validation@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "validation@email.com", "password");
         Long workspaceId = createWorkspaceAndGetId(token, "Validation Workspace");
 
         HttpHeaders headers = authJsonHeaders(token);
@@ -103,8 +103,8 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Get page by id: another user requests foreign page -> returns 404")
     void anotherUserCannotReadForeignPage() {
-        String ownerToken = registerAndGetToken("owner@email.com", "password");
-        String anotherToken = registerAndGetToken("another@email.com", "password");
+        String ownerToken = registerAndGetToken(restTemplate, "owner@email.com", "password");
+        String anotherToken = registerAndGetToken(restTemplate, "another@email.com", "password");
         Long workspaceId = createWorkspaceAndGetId(ownerToken, "Owner Workspace");
         Long pageId = createPageAndGetId(ownerToken, workspaceId, "Private page", "secret");
 
@@ -116,7 +116,7 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Get workspace pages: user lists pages after delete -> deleted page not returned")
     void deletedPageIsNotReturnedInWorkspaceList() {
-        String token = registerAndGetToken("list@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "list@email.com", "password");
         Long workspaceId = createWorkspaceAndGetId(token, "List Workspace");
         Long pageId = createPageAndGetId(token, workspaceId, "To delete", "content");
 
@@ -139,7 +139,7 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Update page: owner updates non-existent page -> returns 404")
     void updatePageOwnerUpdatesNonExistentPageReturnsNotFound() {
-        String token = registerAndGetToken("page_update_404@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "page_update_404@email.com", "password");
         long nonExistentPageId = 999_999L;
 
         ResponseEntity<String> response = updatePageAsString(token, nonExistentPageId, "Updated title", "Updated content");
@@ -152,7 +152,7 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Delete page: owner deletes non-existent page -> returns 404")
     void deletePageOwnerDeletesNonExistentPageReturnsNotFound() {
-        String token = registerAndGetToken("page_delete_404@email.com", "password");
+        String token = registerAndGetToken(restTemplate, "page_delete_404@email.com", "password");
         long nonExistentPageId = 999_999L;
 
         ResponseEntity<String> response = deletePageAsString(token, nonExistentPageId);

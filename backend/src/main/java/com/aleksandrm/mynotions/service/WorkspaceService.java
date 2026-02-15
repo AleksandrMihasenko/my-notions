@@ -23,10 +23,7 @@ public class WorkspaceService {
     }
 
     public List<WorkspaceResponse> getUserWorkspaces() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        PrincipalUser user = (PrincipalUser) auth.getPrincipal();
-
-        List<Workspace> workspaces = workspaceRepository.findAllByOwnerId(user.getId());
+        List<Workspace> workspaces = workspaceRepository.findAllByOwnerId(currentUser().getId());
         return workspaces
                 .stream()
                 .map(this::toResponse)
@@ -34,10 +31,7 @@ public class WorkspaceService {
     }
 
     public WorkspaceResponse getWorkspaceById(Long workspaceId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        PrincipalUser user = (PrincipalUser) auth.getPrincipal();
-
-        Optional<Workspace> workspace = workspaceRepository.findByIdAndOwnerId(workspaceId, user.getId());
+        Optional<Workspace> workspace = workspaceRepository.findByIdAndOwnerId(workspaceId, currentUser().getId());
         if (workspace.isEmpty()) {
             throw new WorkspaceNotFoundException("Workspace not found");
         } else {
@@ -46,11 +40,8 @@ public class WorkspaceService {
     }
 
     public WorkspaceResponse create(WorkspaceCreateRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        PrincipalUser user = (PrincipalUser) auth.getPrincipal();
-
         Workspace workspace = new Workspace();
-        workspace.setOwnerId(user.getId());
+        workspace.setOwnerId(currentUser().getId());
         workspace.setName(request.getName());
 
         Workspace saved = workspaceRepository.save(workspace);
@@ -58,8 +49,7 @@ public class WorkspaceService {
     }
 
     public WorkspaceResponse update(Long id, WorkspaceUpdateRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        PrincipalUser user = (PrincipalUser) auth.getPrincipal();
+        PrincipalUser user = currentUser();
 
         Workspace workspace = new Workspace();
         workspace.setOwnerId(user.getId());
@@ -75,14 +65,16 @@ public class WorkspaceService {
     }
 
     public void delete(Long id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        PrincipalUser user = (PrincipalUser) auth.getPrincipal();
-
-        boolean isDeleted = workspaceRepository.deleteByIdAndOwnerId(id, user.getId());
+        boolean isDeleted = workspaceRepository.deleteByIdAndOwnerId(id, currentUser().getId());
 
         if (!isDeleted) {
             throw new WorkspaceNotFoundException("Workspace not found");
         }
+    }
+
+    private PrincipalUser currentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return (PrincipalUser) auth.getPrincipal();
     }
 
     private WorkspaceResponse toResponse(Workspace workspace) {

@@ -1,5 +1,6 @@
 package com.aleksandrm.mynotions.exception;
 
+import com.aleksandrm.mynotions.dto.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.*;
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -20,49 +21,55 @@ public class GlobalExceptionHandler {
      * Example: email not valid, password too short
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        List<Map<String, String>> errors = new ArrayList<>();
+    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+        List<ErrorResponse.FieldValidationError> fieldErrors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(this::toFieldValidationError)
+                .toList();
 
-        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
-            Map<String, String> error = new HashMap<>();
-            error.put("field", fieldError.getField());
-            error.put("message", fieldError.getDefaultMessage());
-            errors.add(error);
-        }
-
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("errors", errors);
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.validation(fieldErrors));
     }
 
     /**
      * Handle business logic errors
      */
     @ExceptionHandler(EmailAlreadyTakenException.class)
-    public ResponseEntity<String> handleEmailAlreadyTaken(EmailAlreadyTakenException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleEmailAlreadyTaken(EmailAlreadyTakenException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.of("EMAIL_ALREADY_TAKEN", ex.getMessage()));
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<String> handleInvalidCredentials(InvalidCredentialsException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.of("INVALID_CREDENTIALS", ex.getMessage()));
     }
 
     @ExceptionHandler(WorkspaceNotFoundException.class)
-    public ResponseEntity<String> handleWorkspaceNotFound(WorkspaceNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleWorkspaceNotFound(WorkspaceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of("WORKSPACE_NOT_FOUND", ex.getMessage()));
     }
 
     @ExceptionHandler(PageNotFoundException.class)
-    public ResponseEntity<String> handlePageNotFound(PageNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<ErrorResponse> handlePageNotFound(PageNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of("PAGE_NOT_FOUND", ex.getMessage()));
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleUnexpectedRuntime(RuntimeException ex) {
+    public ResponseEntity<ErrorResponse> handleUnexpectedRuntime(RuntimeException ex) {
         logger.error("Unexpected runtime error", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Internal server error");
+                .body(ErrorResponse.of("INTERNAL_ERROR", "Internal server error"));
+    }
+
+    private ErrorResponse.FieldValidationError toFieldValidationError(FieldError fieldError) {
+        return new ErrorResponse.FieldValidationError(
+                fieldError.getField(),
+                fieldError.getDefaultMessage()
+        );
     }
 }
