@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import com.aleksandrm.mynotions.support.PostgresIntegrationTestBase;
+import com.aleksandrm.mynotions.support.IntegrationTestBase;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class PageControllerIntegrationTest extends PostgresIntegrationTestBase {
+public class PageControllerIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -136,18 +136,30 @@ public class PageControllerIntegrationTest extends PostgresIntegrationTestBase {
         assertEquals(0, listResponse.getBody().size());
     }
 
-    private String registerAndGetToken(String email, String password) {
-        Map<String, String> request = Map.of("email", email, "password", password);
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                "/api/auth/register",
-                HttpMethod.POST,
-                new HttpEntity<>(request),
-                new ParameterizedTypeReference<>() {}
-        );
+    @Test
+    @DisplayName("Update page: owner updates non-existent page -> returns 404")
+    void updatePageOwnerUpdatesNonExistentPageReturnsNotFound() {
+        String token = registerAndGetToken("page_update_404@email.com", "password");
+        long nonExistentPageId = 999_999L;
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        ResponseEntity<String> response = updatePageAsString(token, nonExistentPageId, "Updated title", "Updated content");
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
-        return (String) response.getBody().get("token");
+        assertTrue(response.getBody().contains("Page not found"));
+    }
+
+    @Test
+    @DisplayName("Delete page: owner deletes non-existent page -> returns 404")
+    void deletePageOwnerDeletesNonExistentPageReturnsNotFound() {
+        String token = registerAndGetToken("page_delete_404@email.com", "password");
+        long nonExistentPageId = 999_999L;
+
+        ResponseEntity<String> response = deletePageAsString(token, nonExistentPageId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().contains("Page not found"));
     }
 
     private Long createWorkspaceAndGetId(String token, String workspaceName) {
@@ -223,6 +235,20 @@ public class PageControllerIntegrationTest extends PostgresIntegrationTestBase {
         );
     }
 
+    private ResponseEntity<String> updatePageAsString(String token, Long pageId, String title, String content) {
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(
+                Map.of("title", title, "content", content),
+                authJsonHeaders(token)
+        );
+
+        return restTemplate.exchange(
+                "/api/pages/" + pageId,
+                HttpMethod.PUT,
+                entity,
+                String.class
+        );
+    }
+
     private ResponseEntity<Void> deletePage(String token, Long pageId) {
         HttpEntity<Void> entity = new HttpEntity<>(authHeaders(token));
         return restTemplate.exchange(
@@ -233,15 +259,13 @@ public class PageControllerIntegrationTest extends PostgresIntegrationTestBase {
         );
     }
 
-    private HttpHeaders authHeaders(String token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        return headers;
-    }
-
-    private HttpHeaders authJsonHeaders(String token) {
-        HttpHeaders headers = authHeaders(token);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return headers;
+    private ResponseEntity<String> deletePageAsString(String token, Long pageId) {
+        HttpEntity<Void> entity = new HttpEntity<>(authHeaders(token));
+        return restTemplate.exchange(
+                "/api/pages/" + pageId,
+                HttpMethod.DELETE,
+                entity,
+                String.class
+        );
     }
 }

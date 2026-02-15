@@ -1,7 +1,7 @@
 package com.aleksandrm.mynotions.repository;
 
 import com.aleksandrm.mynotions.model.User;
-import com.aleksandrm.mynotions.support.PostgresIntegrationTestBase;
+import com.aleksandrm.mynotions.support.IntegrationTestBase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class UserRepositoryIntegrationTest extends PostgresIntegrationTestBase {
+public class UserRepositoryIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private UserRepository userRepository;

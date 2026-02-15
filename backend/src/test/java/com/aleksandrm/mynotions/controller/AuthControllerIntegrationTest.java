@@ -7,14 +7,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import com.aleksandrm.mynotions.support.PostgresIntegrationTestBase;
+import com.aleksandrm.mynotions.support.IntegrationTestBase;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class AuthControllerIntegrationTest extends PostgresIntegrationTestBase {
+public class AuthControllerIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -139,5 +139,39 @@ public class AuthControllerIntegrationTest extends PostgresIntegrationTestBase {
         assertEquals(HttpStatus.UNAUTHORIZED, loginResponse.getStatusCode());
         assertNotNull(loginResponse.getBody());
         assertTrue(loginResponse.getBody().contains("Invalid credentials"));
+    }
+
+    @Test
+    @DisplayName("Login: user sends valid credentials -> user gets 200 and token")
+    void userSendsValidCredentialsAndGetsToken() {
+        // Arrange
+        Map<String, String> registerRequest = Map.of(
+                "email", "login_happy@test.com",
+                "password", "correctpassword"
+        );
+        ResponseEntity<Map> registerResponse = restTemplate.postForEntity(
+                "/api/auth/register",
+                registerRequest,
+                Map.class
+        );
+        assertEquals(HttpStatus.CREATED, registerResponse.getStatusCode());
+
+        Map<String, String> loginRequest = Map.of(
+                "email", "login_happy@test.com",
+                "password", "correctpassword"
+        );
+
+        // Act
+        ResponseEntity<Map> loginResponse = restTemplate.postForEntity(
+                "/api/auth/login",
+                loginRequest,
+                Map.class
+        );
+
+        // Assert
+        assertEquals(HttpStatus.OK, loginResponse.getStatusCode());
+        assertNotNull(loginResponse.getBody());
+        assertNotNull(loginResponse.getBody().get("token"));
+        assertEquals("login_happy@test.com", loginResponse.getBody().get("email"));
     }
 }

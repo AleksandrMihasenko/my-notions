@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import com.aleksandrm.mynotions.support.PostgresIntegrationTestBase;
+import com.aleksandrm.mynotions.support.IntegrationTestBase;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class WorkspaceControllerIntegrationTest extends PostgresIntegrationTestBase {
+public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -222,18 +222,30 @@ public class WorkspaceControllerIntegrationTest extends PostgresIntegrationTestB
         assertTrue(getAfterDeleteResponse.getBody().contains("Workspace not found"));
     }
 
-    private String registerAndGetToken(String email, String password) {
-        Map<String, String> request = Map.of("email", email, "password", password);
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                "/api/auth/register",
-                HttpMethod.POST,
-                new HttpEntity<>(request),
-                new ParameterizedTypeReference<>() {}
-        );
+    @Test
+    @DisplayName("Update workspace: owner updates non-existent workspace -> returns 404")
+    void updateWorkspaceOwnerUpdatesNonExistentWorkspaceReturnsNotFound() {
+        String token = registerAndGetToken("workspace_update_404@email.com", "password");
+        long nonExistentWorkspaceId = 999_999L;
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        ResponseEntity<String> response = updateWorkspaceAsString(token, nonExistentWorkspaceId, "Updated workspace");
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
-        return (String) response.getBody().get("token");
+        assertTrue(response.getBody().contains("Workspace not found"));
+    }
+
+    @Test
+    @DisplayName("Delete workspace: owner deletes non-existent workspace -> returns 404")
+    void deleteWorkspaceOwnerDeletesNonExistentWorkspaceReturnsNotFound() {
+        String token = registerAndGetToken("workspace_delete_404@email.com", "password");
+        long nonExistentWorkspaceId = 999_999L;
+
+        ResponseEntity<String> response = deleteWorkspaceAsString(token, nonExistentWorkspaceId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().contains("Workspace not found"));
     }
 
     private ResponseEntity<Map<String, Object>> createWorkspace(String token, String name) {
@@ -292,6 +304,20 @@ public class WorkspaceControllerIntegrationTest extends PostgresIntegrationTestB
         );
     }
 
+    private ResponseEntity<String> updateWorkspaceAsString(String token, Long workspaceId, String name) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(Map.of("name", name), headers);
+
+        return restTemplate.exchange(
+                "/api/workspaces/" + workspaceId,
+                HttpMethod.PUT,
+                entity,
+                String.class
+        );
+    }
+
     private ResponseEntity<Void> deleteWorkspace(String token, Long workspaceId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -302,6 +328,19 @@ public class WorkspaceControllerIntegrationTest extends PostgresIntegrationTestB
                 HttpMethod.DELETE,
                 entity,
                 Void.class
+        );
+    }
+
+    private ResponseEntity<String> deleteWorkspaceAsString(String token, Long workspaceId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        return restTemplate.exchange(
+                "/api/workspaces/" + workspaceId,
+                HttpMethod.DELETE,
+                entity,
+                String.class
         );
     }
 }
