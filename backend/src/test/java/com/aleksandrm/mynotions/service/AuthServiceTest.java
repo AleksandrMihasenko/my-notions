@@ -2,10 +2,11 @@ package com.aleksandrm.mynotions.service;
 
 import com.aleksandrm.mynotions.dto.LoginRequest;
 import com.aleksandrm.mynotions.dto.RegisterRequest;
+import com.aleksandrm.mynotions.events.UserLoggedEvent;
+import com.aleksandrm.mynotions.events.UserRegisteredEvent;
 import com.aleksandrm.mynotions.exception.EmailAlreadyTakenException;
 import com.aleksandrm.mynotions.exception.InvalidCredentialsException;
 import com.aleksandrm.mynotions.model.User;
-import com.aleksandrm.mynotions.repository.EventRepository;
 import com.aleksandrm.mynotions.repository.UserRepository;
 import com.aleksandrm.mynotions.utils.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 
@@ -26,7 +28,7 @@ class AuthServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private PasswordService passwordService;
     @Mock private JwtUtil jwtUtil;
-    @Mock private EventRepository eventRepository;
+    @Mock private ApplicationEventPublisher publisher;
 
     @InjectMocks
     private AuthService authService;
@@ -55,7 +57,7 @@ class AuthServiceTest {
         assertNotNull(response);
         assertEquals("token", response.getToken());
         assertEquals(1L, response.getId());
-        verify(eventRepository).logEvent("USER_REGISTERED", 1L, "{}");
+        verify(publisher).publishEvent(new UserRegisteredEvent(savedUser.getId(), "{}"));
     }
 
     @Test
@@ -77,7 +79,7 @@ class AuthServiceTest {
 
         // Assert
         verify(userRepository, never()).save(any(User.class));
-        verify(eventRepository, never()).logEvent(anyString(), anyLong(), anyString());
+        verify(publisher, never()).publishEvent(any());
     }
 
     @Test
@@ -105,7 +107,7 @@ class AuthServiceTest {
         assertEquals("token", response.getToken());
         assertEquals(1L, response.getId());
 
-        verify(eventRepository).logEvent("USER_LOGGED_IN", 1L, "{}");
+        verify(publisher).publishEvent(new UserLoggedEvent(savedUser.getId(), "{}"));
     }
 
     @Test
@@ -122,7 +124,7 @@ class AuthServiceTest {
         assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
 
         // Assert
-        verify(eventRepository, never()).logEvent(anyString(), anyLong(), anyString());
+        verify(publisher, never()).publishEvent(any());
     }
 
     @Test
@@ -145,6 +147,6 @@ class AuthServiceTest {
         assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
 
         // Assert
-        verify(eventRepository, never()).logEvent(anyString(), anyLong(), anyString());
+        verify(publisher, never()).publishEvent(any());
     }
 }

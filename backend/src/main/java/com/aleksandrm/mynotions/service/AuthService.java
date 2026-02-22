@@ -3,13 +3,15 @@ package com.aleksandrm.mynotions.service;
 import com.aleksandrm.mynotions.dto.AuthResponse;
 import com.aleksandrm.mynotions.dto.LoginRequest;
 import com.aleksandrm.mynotions.dto.RegisterRequest;
+import com.aleksandrm.mynotions.events.UserLoggedEvent;
+import com.aleksandrm.mynotions.events.UserRegisteredEvent;
 import com.aleksandrm.mynotions.exception.EmailAlreadyTakenException;
 import com.aleksandrm.mynotions.exception.InvalidCredentialsException;
 import com.aleksandrm.mynotions.model.User;
-import com.aleksandrm.mynotions.repository.EventRepository;
 import com.aleksandrm.mynotions.repository.UserRepository;
 import com.aleksandrm.mynotions.utils.JwtUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 
@@ -18,13 +20,13 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
     private final JwtUtil jwtUtil;
-    private final EventRepository eventRepository;
+    private final ApplicationEventPublisher publisher;
 
-    public AuthService(UserRepository userRepository, PasswordService passwordService, JwtUtil jwtUtil, EventRepository eventRepository) {
+    public AuthService(UserRepository userRepository, PasswordService passwordService, JwtUtil jwtUtil, ApplicationEventPublisher publisher) {
         this.userRepository = userRepository;
         this.passwordService = passwordService;
         this.jwtUtil = jwtUtil;
-        this.eventRepository = eventRepository;
+        this.publisher = publisher;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -44,7 +46,7 @@ public class AuthService {
         User savedUser = userRepository.save(user);
         String token = jwtUtil.generateToken(savedUser);
 
-        eventRepository.logEvent("USER_REGISTERED", savedUser.getId(), "{}");
+        publisher.publishEvent(new UserRegisteredEvent(savedUser.getId(), "{}"));
 
         return toAuthResponse(token, savedUser);
     }
@@ -64,7 +66,7 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(savedUser);
 
-        eventRepository.logEvent("USER_LOGGED_IN", savedUser.getId(), "{}");
+        publisher.publishEvent(new UserLoggedEvent(savedUser.getId(), "{}"));
 
         return toAuthResponse(token, savedUser);
     }
