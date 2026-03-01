@@ -1,30 +1,30 @@
-# Use Case Trace: Login
+# Use Case Trace: Register
 
 Updated: 2026-03-01
 
 ## Goal
 
-User logs in from UI and receives JWT token.
+User registers from UI and receives a JWT token.
 
 ## End-to-end path
 
 1. UI trigger
    - `frontend/src/widgets/Navbar/ui/Navbar.tsx`
-   - User clicks login button -> opens `LoginModal`.
-2. Login form render
-   - `frontend/src/features/AuthByUsername/ui/LoginModal/LoginModal.tsx`
-   - Renders `LoginForm`.
+   - User clicks register button -> opens `RegisterModal`.
+2. Register form render
+   - `frontend/src/features/AuthByUsername/ui/RegisterModal/RegisterModal.tsx`
+   - Renders `RegisterForm`.
 3. Boundary gap on the frontend
-   - `frontend/src/features/AuthByUsername/ui/LoginForm/LoginForm.tsx`
+   - `frontend/src/features/AuthByUsername/ui/RegisterForm/RegisterForm.tsx`
    - Inputs and button exist, but no submitted handler/use-case/API call yet.
 4. Backend endpoint contract
    - `backend/src/main/java/com/aleksandrm/mynotions/controller/AuthController.java`
-   - `POST /api/auth/login` with `LoginRequest`.
+   - `POST /api/auth/register` with `RegisterRequest`.
 5. Application logic
-   - `backend/src/main/java/com/aleksandrm/mynotions/service/AuthService.java#login`
-   - Finds user, verifies password, generates JWT, logs event.
+   - `backend/src/main/java/com/aleksandrm/mynotions/service/AuthService.java#register`
+   - Create a user, generates JWT, logs event.
 6. Persistence
-   - `backend/src/main/java/com/aleksandrm/mynotions/repository/UserRepository.java#getUserByEmail`
+   - `backend/src/main/java/com/aleksandrm/mynotions/repository/UserRepository.java#save`
    - `backend/src/main/java/com/aleksandrm/mynotions/repository/EventRepository.java#logEvent`
 7. Response
    - `AuthResponse` returned with token and user fields.
@@ -39,7 +39,7 @@ User logs in from UI and receives JWT token.
 
 ## Target boundary shape (small-step direction)
 
-- Frontend: `LoginForm` -> `loginByUsername` use-case -> API client -> `userSlice`.
+- Frontend: `RegisterForm` -> `registerByUsername` use-case -> API client -> `userSlice`.
 - Backend: `AuthService` orchestrates auth only; audit logging moves behind dedicated abstraction/event publisher.
 
 ## State ownership
@@ -49,10 +49,10 @@ User logs in from UI and receives JWT token.
 - Spring security context: request-scoped auth state, not persisted.
 
 ## Data flow
-- User submits a login form with email and password.
-- Frontend calls `loginByUsername` use-case with credentials.
+- User submits a register form with email and password.
+- Frontend calls `registerByUsername` use-case with credentials.
 - Use-case validates credentials, calls backend API.
-- Backend verifies password, generates JWT, logs event.
+- Backend checks email uniqueness, hashes password, saves a user, generates JWT, logs event.
 - Response is mapped to `AuthResponse` and returned to frontend.
 - Frontend stores token and user data in Redux store.
 
