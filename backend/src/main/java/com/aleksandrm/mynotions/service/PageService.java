@@ -3,14 +3,17 @@ package com.aleksandrm.mynotions.service;
 import com.aleksandrm.mynotions.dto.PageCreateRequest;
 import com.aleksandrm.mynotions.dto.PageResponse;
 import com.aleksandrm.mynotions.dto.PageUpdateRequest;
+import com.aleksandrm.mynotions.events.PageCreatedEvent;
 import com.aleksandrm.mynotions.exception.PageNotFoundException;
 import com.aleksandrm.mynotions.exception.WorkspaceNotFoundException;
 import com.aleksandrm.mynotions.model.Page;
 import com.aleksandrm.mynotions.repository.PageRepository;
 import com.aleksandrm.mynotions.security.PrincipalUser;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,11 +21,14 @@ import java.util.Optional;
 @Service
 public class PageService {
     private final PageRepository pageRepository;
+    private final ApplicationEventPublisher publisher;
 
-    public PageService(PageRepository pageRepository) {
+    public PageService(PageRepository pageRepository, ApplicationEventPublisher publisher) {
         this.pageRepository = pageRepository;
+        this.publisher = publisher;
     }
 
+    @Transactional
     public PageResponse create(Long workspaceId, PageCreateRequest request) {
         PrincipalUser user = currentUser();
 
@@ -37,6 +43,11 @@ public class PageService {
         if (saved.isEmpty()) {
             throw new WorkspaceNotFoundException("Workspace not found");
         }
+
+        String metadata = "{\"pageId\":" + saved.get().getId()
+                + ",\"workspaceId\":" + saved.get().getWorkspaceId()
+                + ",\"title\":\"" + saved.get().getTitle() + "\"}";
+        publisher.publishEvent(new PageCreatedEvent(user.getId(), metadata));
 
         return toResponse(saved.get());
     }

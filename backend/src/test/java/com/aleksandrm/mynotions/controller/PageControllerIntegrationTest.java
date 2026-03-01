@@ -1,6 +1,8 @@
 package com.aleksandrm.mynotions.controller;
 
+import com.aleksandrm.mynotions.repository.EventRepository;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,17 +10,29 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import com.aleksandrm.mynotions.support.IntegrationTestBase;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.reset;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PageControllerIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @MockitoSpyBean
+    private EventRepository eventRepository;
+
+    @AfterEach
+    void resetSpy() {
+        reset(eventRepository);
+    }
 
     @Test
     @DisplayName("Create page: user sends valid data -> returns 201")
@@ -32,6 +46,16 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
         assertNotNull(response.getBody());
         assertEquals("Page 1", response.getBody().get("title"));
         assertNotNull(response.getBody().get("id"));
+
+        Long pageId = ((Number) response.getBody().get("id")).longValue();
+        Integer eventCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM events " +
+                        "WHERE event_type = 'PAGE_CREATED' " +
+                        "AND (metadata->>'pageId')::bigint = ?",
+                Integer.class,
+                pageId
+        );
+        assertEquals(1, eventCount);
     }
 
     @Test
@@ -160,6 +184,39 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().contains("Page not found"));
+    }
+
+    @Test
+    @DisplayName("Create page: event logging fails -> returns 500 and page is rolled back")
+    void createPageWhenEventLogFailsRollsBackPageInsert() {
+        String token = registerAndGetToken(restTemplate, "page_rollback@email.com", "password");
+        Long workspaceId = createWorkspaceAndGetId(token, "Rollback Workspace");
+
+        doThrow(new RuntimeException("event write failed"))
+                .when(eventRepository)
+                .logEvent(eq("PAGE_CREATED"), anyLong(), anyString());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(
+                Map.of("title", "Rollback Page", "content", "content"),
+                authJsonHeaders(token)
+        );
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "/api/workspaces/" + workspaceId + "/pages",
+                HttpMethod.POST,
+                entity,
+                String.class
+        );
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM pages WHERE workspace_id = ? AND title = ?",
+                Integer.class,
+                workspaceId,
+                "Rollback Page"
+        );
+        assertEquals(0, count);
     }
 
     private Long createWorkspaceAndGetId(String token, String workspaceName) {
