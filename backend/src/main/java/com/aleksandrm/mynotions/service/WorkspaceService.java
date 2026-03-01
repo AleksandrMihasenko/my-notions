@@ -3,13 +3,16 @@ package com.aleksandrm.mynotions.service;
 import com.aleksandrm.mynotions.dto.WorkspaceCreateRequest;
 import com.aleksandrm.mynotions.dto.WorkspaceResponse;
 import com.aleksandrm.mynotions.dto.WorkspaceUpdateRequest;
+import com.aleksandrm.mynotions.events.WorkspaceCreatedEvent;
 import com.aleksandrm.mynotions.exception.WorkspaceNotFoundException;
 import com.aleksandrm.mynotions.model.Workspace;
 import com.aleksandrm.mynotions.repository.WorkspaceRepository;
 import com.aleksandrm.mynotions.security.PrincipalUser;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,9 +20,11 @@ import java.util.Optional;
 @Service
 public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
+    private final ApplicationEventPublisher publisher;
 
-    public WorkspaceService(WorkspaceRepository workspaceRepository) {
+    public WorkspaceService(WorkspaceRepository workspaceRepository, ApplicationEventPublisher publisher) {
         this.workspaceRepository = workspaceRepository;
+        this.publisher = publisher;
     }
 
     public List<WorkspaceResponse> getUserWorkspaces() {
@@ -39,12 +44,17 @@ public class WorkspaceService {
         }
     }
 
+    @Transactional
     public WorkspaceResponse create(WorkspaceCreateRequest request) {
         Workspace workspace = new Workspace();
         workspace.setOwnerId(currentUser().getId());
         workspace.setName(request.getName());
 
         Workspace saved = workspaceRepository.save(workspace);
+
+        String metadata = "{\"workspaceId\":" + saved.getId() + ",\"name\":\"" + saved.getName() + "\"}";
+        publisher.publishEvent(new WorkspaceCreatedEvent(saved.getOwnerId(), metadata));
+
         return toResponse(saved);
     }
 

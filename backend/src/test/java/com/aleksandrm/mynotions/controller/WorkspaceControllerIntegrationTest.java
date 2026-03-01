@@ -1,5 +1,6 @@
 package com.aleksandrm.mynotions.controller;
 
+import com.aleksandrm.mynotions.repository.EventRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import com.aleksandrm.mynotions.support.IntegrationTestBase;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.List;
 import java.util.Map;
@@ -15,12 +17,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doThrow;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @MockitoSpyBean
+    private EventRepository eventRepository;
 
     @Test
     @DisplayName("Create workspace: valid request (token + body) -> returns 201 and row in DB")
@@ -42,6 +49,7 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
                 entity,
                 new ParameterizedTypeReference<>() {}
         );
+        Long workspaceId = ((Number) response.getBody().get("id")).longValue();
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -54,7 +62,15 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
                 Integer.class,
                 "Test Workspace"
         );
+        Integer eventCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM events " +
+                        "WHERE event_type = 'WORKSPACE_CREATED' " +
+                        "AND (metadata->>'workspaceId')::bigint = ?",
+                Integer.class,
+                workspaceId
+        );
         assertEquals(1, count);
+        assertEquals(1, eventCount);
     }
 
     @Test
@@ -246,6 +262,31 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().contains("Workspace not found"));
+    }
+
+    @Test
+    void createWorkspaceWhenEventLogFailsRollsBackWorkspaceInsert() {
+        String token = registerAndGetToken(restTemplate, "rollback@test.com", "password");
+
+        doThrow(new RuntimeException("event write failed"))
+                .when(eventRepository)
+                .logEvent(eq("WORKSPACE_CREATED"), anyLong(), anyString());
+
+        HttpHeaders headers = authJsonHeaders(token);
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(Map.of("name", "Rollback WS"), headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "/api/workspaces", HttpMethod.POST, entity, String.class
+        );
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM workspaces WHERE name = ?",
+                Integer.class,
+                "Rollback WS"
+        );
+        assertEquals(0, count);
     }
 
     private ResponseEntity<Map<String, Object>> createWorkspace(String token, String name) {
