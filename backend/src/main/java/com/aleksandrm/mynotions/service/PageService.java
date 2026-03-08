@@ -4,11 +4,15 @@ import com.aleksandrm.mynotions.dto.PageCreateRequest;
 import com.aleksandrm.mynotions.dto.PageResponse;
 import com.aleksandrm.mynotions.dto.PageUpdateRequest;
 import com.aleksandrm.mynotions.events.PageCreatedEvent;
+import com.aleksandrm.mynotions.events.PageDeletedEvent;
+import com.aleksandrm.mynotions.events.PageUpdatedEvent;
 import com.aleksandrm.mynotions.exception.PageNotFoundException;
 import com.aleksandrm.mynotions.exception.WorkspaceNotFoundException;
 import com.aleksandrm.mynotions.model.Page;
 import com.aleksandrm.mynotions.repository.PageRepository;
 import com.aleksandrm.mynotions.security.PrincipalUser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,16 +20,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class PageService {
     private final PageRepository pageRepository;
     private final ApplicationEventPublisher publisher;
+    private final ObjectMapper objectMapper;
 
-    public PageService(PageRepository pageRepository, ApplicationEventPublisher publisher) {
+    public PageService(PageRepository pageRepository, ApplicationEventPublisher publisher, ObjectMapper objectMapper) {
         this.pageRepository = pageRepository;
         this.publisher = publisher;
+        this.objectMapper = objectMapper;
     }
 
     @Transactional
@@ -44,12 +51,11 @@ public class PageService {
             throw new WorkspaceNotFoundException("Workspace not found");
         }
 
-        String metadata = "{\"pageId\":" + saved.get().getId()
-                + ",\"workspaceId\":" + saved.get().getWorkspaceId()
-                + ",\"title\":\"" + saved.get().getTitle() + "\"}";
+        Page savedPage = saved.get();
+        String metadata = createPageMetadata(savedPage);
         publisher.publishEvent(new PageCreatedEvent(user.getId(), metadata));
 
-        return toResponse(saved.get());
+        return toResponse(savedPage);
     }
 
     public List<PageResponse> getWorkspacePages(Long workspaceId) {
@@ -72,6 +78,7 @@ public class PageService {
         return toResponse(page.get());
     }
 
+    @Transactional
     public PageResponse update(Long pageId, PageUpdateRequest request) {
         PrincipalUser user = currentUser();
 
@@ -85,16 +92,26 @@ public class PageService {
             throw new PageNotFoundException("Page not found");
         }
 
-        return toResponse(updated.get());
+        Page updatedPage = updated.get();
+        String metadata = createPageMetadata(updatedPage);
+        publisher.publishEvent(new PageUpdatedEvent(user.getId(), metadata));
+
+        return toResponse(updatedPage);
     }
 
+    @Transactional
     public void delete(Long pageId) {
         PrincipalUser user = currentUser();
+        Page existingPage = pageRepository.findByIdAndOwnerId(pageId, user.getId())
+                .orElseThrow(() -> new PageNotFoundException("Page not found"));
 
         boolean deleted = pageRepository.softDeleteByIdAndOwnerId(pageId, user.getId());
         if (!deleted) {
             throw new PageNotFoundException("Page not found");
         }
+
+        String metadata = createPageMetadata(existingPage);
+        publisher.publishEvent(new PageDeletedEvent(user.getId(), metadata));
     }
 
     private PrincipalUser currentUser() {
@@ -113,5 +130,19 @@ public class PageService {
         response.setCreatedAt(page.getCreatedAt());
         response.setUpdatedAt(page.getUpdatedAt());
         return response;
+    }
+
+    private String createPageMetadata(Page page) {
+        try {
+            return objectMapper.writeValueAsString(Map.of(
+                    "pageId", page.getId(),
+                    "workspaceId", page.getWorkspaceId(),
+                    "title", page.getTitle(),
+                    "entityType", "PAGE",
+                    "entityId", page.getId()
+            ));
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Failed to serialize page metadata", e);
+        }
     }
 }

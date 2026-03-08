@@ -84,6 +84,16 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Updated title", response.getBody().get("title"));
+
+        Integer eventCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM events " +
+                        "WHERE event_type = 'PAGE_UPDATED' " +
+                        "AND (metadata->>'entityId')::bigint = ? " +
+                        "AND metadata->>'entityType' = 'PAGE'",
+                Integer.class,
+                pageId
+        );
+        assertEquals(1, eventCount);
     }
 
     @Test
@@ -98,6 +108,16 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
 
         assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
         assertEquals(HttpStatus.NOT_FOUND, getAfterDeleteResponse.getStatusCode());
+
+        Integer eventCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM events " +
+                        "WHERE event_type = 'PAGE_DELETED' " +
+                        "AND (metadata->>'entityId')::bigint = ? " +
+                        "AND metadata->>'entityType' = 'PAGE'",
+                Integer.class,
+                pageId
+        );
+        assertEquals(1, eventCount);
     }
 
     @Test
@@ -217,6 +237,50 @@ public class PageControllerIntegrationTest extends IntegrationTestBase {
                 "Rollback Page"
         );
         assertEquals(0, count);
+    }
+
+    @Test
+    @DisplayName("Update page: event logging fails -> returns 500 and update is rolled back")
+    void updatePageWhenEventLogFailsRollsBackUpdate() {
+        String token = registerAndGetToken(restTemplate, "page_update_rollback@email.com", "password");
+        Long workspaceId = createWorkspaceAndGetId(token, "Rollback Workspace");
+        Long pageId = createPageAndGetId(token, workspaceId, "Old title", "Old content");
+
+        doThrow(new RuntimeException("event write failed"))
+                .when(eventRepository)
+                .logEvent(eq("PAGE_UPDATED"), anyLong(), anyString());
+
+        ResponseEntity<String> response = updatePageAsString(token, pageId, "Updated title", "Updated content");
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+        String title = jdbcTemplate.queryForObject(
+                "SELECT title FROM pages WHERE id = ? AND is_deleted = false",
+                String.class,
+                pageId
+        );
+        assertEquals("Old title", title);
+    }
+
+    @Test
+    @DisplayName("Delete page: event logging fails -> returns 500 and delete is rolled back")
+    void deletePageWhenEventLogFailsRollsBackDelete() {
+        String token = registerAndGetToken(restTemplate, "page_delete_rollback@email.com", "password");
+        Long workspaceId = createWorkspaceAndGetId(token, "Rollback Workspace");
+        Long pageId = createPageAndGetId(token, workspaceId, "Page to keep", "content");
+
+        doThrow(new RuntimeException("event write failed"))
+                .when(eventRepository)
+                .logEvent(eq("PAGE_DELETED"), anyLong(), anyString());
+
+        ResponseEntity<String> response = deletePageAsString(token, pageId);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM pages WHERE id = ? AND is_deleted = false",
+                Integer.class,
+                pageId
+        );
+        assertEquals(1, count);
     }
 
     private Long createWorkspaceAndGetId(String token, String workspaceName) {
