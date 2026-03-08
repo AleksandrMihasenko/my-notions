@@ -16,4 +16,14 @@ public class WorkspaceEventListener {
     public void handleWorkspaceCreatedEvent(WorkspaceCreatedEvent event) {
         eventRepository.logEvent("WORKSPACE_CREATED", event.ownerId(), event.metadata());
     }
+
+    @EventListener
+    public void handleWorkspaceUpdatedEvent(WorkspaceUpdatedEvent event) {
+        eventRepository.logEvent("WORKSPACE_UPDATED", event.ownerId(), event.metadata());
+    }
+
+    @EventListener
+    public void handleWorkspaceDeletedEvent(WorkspaceDeletedEvent event) {
+        eventRepository.logEvent("WORKSPACE_DELETED", event.ownerId(), event.metadata());
+    }
 }
