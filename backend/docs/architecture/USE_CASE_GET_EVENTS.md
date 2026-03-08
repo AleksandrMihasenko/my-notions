@@ -25,7 +25,8 @@ Updated: 2026-03-07
 
 ## Boundary violations/weaknesses
    - Metadata filtering is weak if the schema is inconsistent with the use-case.
-   - Need to create integration tests with real DB rows as application logic is not implemented yet.
+   - MVP implementation exists, but integration tests for `/api/events` are still missing.
+   - Current pagination uses `OFFSET`; for growth this may need keyset/cursor pagination.
 
 ## Target boundary shape (small-step direction)
    - controller only parses params
@@ -44,6 +45,15 @@ Updated: 2026-03-07
 
 ## Trade-offs
    - Flexible JSONB metadata vs strict typed columns.
+   - JSONB filtering is temporary; see ADR-003 (backend/docs/ADR/ADR-003-use-jsonb-filtering-for-current-project-state.md).
 
 ## Invariants:
    - Events are immutable.
+
+## Filter contract (MVP)
+For entity-related events, `metadata` must contain:
+- `entityType` (string, e.g. `WORKSPACE`, `PAGE`)
+- `entityId` (number, positive long)
+
+## Next step
+- Planned migration: typed columns (entity_type, entity_id) + index strategy (ADR-003).
