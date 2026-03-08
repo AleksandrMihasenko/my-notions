@@ -217,6 +217,42 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
                 workspaceId
         );
         assertEquals("Updated workspace", workspaceName);
+
+        String events = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM events " +
+                    "WHERE event_type = 'WORKSPACE_UPDATED' " +
+                    "AND (metadata->>'workspaceId')::bigint = ? " +
+                    "AND metadata->>'entityType' = 'WORKSPACE'",
+                String.class,
+                workspaceId
+        );
+        assertEquals("1", events);
+    }
+
+    @Test
+    @DisplayName("Update workspace: event logging fails -> returns 500 and update is rolled back")
+    void updateWorkspaceOwnerSendsValidDataReturnsOkAndEventWriteFailed() {
+        String token = registerAndGetToken(restTemplate, "workspace_update@email.com", "password");
+        ResponseEntity<Map<String, Object>> createResponse = createWorkspace(token, "Old workspace");
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        assertNotNull(createResponse.getBody());
+
+        Long workspaceId = ((Number) createResponse.getBody().get("id")).longValue();
+
+        doThrow(new RuntimeException("event write failed"))
+                .when(eventRepository)
+                .logEvent(eq("WORKSPACE_UPDATED"), anyLong(), anyString());
+
+        ResponseEntity<String> response = updateWorkspaceAsString(token, workspaceId, "Updated workspace");
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+        String workspaceName = jdbcTemplate.queryForObject(
+                "SELECT name FROM workspaces WHERE id = ?",
+                String.class,
+                workspaceId
+        );
+        assertEquals("Old workspace", workspaceName);
     }
 
     @Test
@@ -236,6 +272,42 @@ public class WorkspaceControllerIntegrationTest extends IntegrationTestBase {
         assertEquals(HttpStatus.NOT_FOUND, getAfterDeleteResponse.getStatusCode());
         assertNotNull(getAfterDeleteResponse.getBody());
         assertTrue(getAfterDeleteResponse.getBody().contains("Workspace not found"));
+
+        String events = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM events " +
+                        "WHERE event_type = 'WORKSPACE_DELETED' " +
+                        "AND (metadata->>'workspaceId')::bigint = ? " +
+                        "AND metadata->>'entityType' = 'WORKSPACE'",
+                String.class,
+                workspaceId
+        );
+        assertEquals("1", events);
+    }
+
+    @Test
+    @DisplayName("Delete workspace: event logging fails -> returns 500 and delete is rolled back")
+    void deleteWorkspaceOwnerDeletesExistingWorkspaceReturnsNoContentAndEventWriteFailed() {
+        String token = registerAndGetToken(restTemplate, "workspace_delete@email.com", "password");
+        ResponseEntity<Map<String, Object>> createResponse = createWorkspace(token, "Workspace to delete");
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        assertNotNull(createResponse.getBody());
+
+        Long workspaceId = ((Number) createResponse.getBody().get("id")).longValue();
+
+        doThrow(new RuntimeException("event write failed"))
+                .when(eventRepository)
+                .logEvent(eq("WORKSPACE_DELETED"), anyLong(), anyString());
+
+        ResponseEntity<String> response = deleteWorkspaceAsString(token, workspaceId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM workspaces WHERE id = ?",
+                Integer.class,
+                workspaceId
+        );
+        assertEquals(1, count);
     }
 
     @Test
