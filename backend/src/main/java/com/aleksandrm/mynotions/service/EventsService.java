@@ -5,9 +5,6 @@ import com.aleksandrm.mynotions.dto.EventResponse;
 import com.aleksandrm.mynotions.dto.PagedResponse;
 import com.aleksandrm.mynotions.model.EventQueryParams;
 import com.aleksandrm.mynotions.repository.EventRepository;
-import com.aleksandrm.mynotions.security.PrincipalUser;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,14 +12,15 @@ import java.util.List;
 @Service
 public class EventsService {
     private final EventRepository eventRepository;
+    private final CurrentUserProvider currentUserProvider;
 
-    public EventsService(EventRepository eventRepository) {
+    public EventsService(EventRepository eventRepository, CurrentUserProvider currentUserProvider) {
         this.eventRepository = eventRepository;
+        this.currentUserProvider = currentUserProvider;
     }
 
     public PagedResponse<EventResponse> getEvents(EventQueryParams queryParams) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        PrincipalUser user = (PrincipalUser) auth.getPrincipal();
+        Long userId = currentUserProvider.getCurrentUserId();
 
         EventFilter filter = new EventFilter(
                 queryParams.type(),
@@ -36,8 +34,8 @@ public class EventsService {
         int pageSize = queryParams.pageSizeOrDefault();
         int offset = page * pageSize;
 
-        List<EventResponse> events = eventRepository.findEvents(user.getId(), filter, pageSize, offset);
-        long total = eventRepository.countEvents(user.getId(), filter);
+        List<EventResponse> events = eventRepository.findEvents(userId, filter, pageSize, offset);
+        long total = eventRepository.countEvents(userId, filter);
         int totalPages = (int) Math.ceil((double) total / pageSize);
         boolean last = page >= Math.max(totalPages - 1, 0);
 

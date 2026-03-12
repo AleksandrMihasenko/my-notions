@@ -10,12 +10,9 @@ import com.aleksandrm.mynotions.exception.PageNotFoundException;
 import com.aleksandrm.mynotions.exception.WorkspaceNotFoundException;
 import com.aleksandrm.mynotions.model.Page;
 import com.aleksandrm.mynotions.repository.PageRepository;
-import com.aleksandrm.mynotions.security.PrincipalUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,49 +25,51 @@ public class PageService {
     private final PageRepository pageRepository;
     private final ApplicationEventPublisher publisher;
     private final ObjectMapper objectMapper;
+    private final CurrentUserProvider currentUserProvider;
 
-    public PageService(PageRepository pageRepository, ApplicationEventPublisher publisher, ObjectMapper objectMapper) {
+    public PageService(PageRepository pageRepository, ApplicationEventPublisher publisher, ObjectMapper objectMapper, CurrentUserProvider currentUserProvider) {
         this.pageRepository = pageRepository;
         this.publisher = publisher;
         this.objectMapper = objectMapper;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Transactional
     public PageResponse create(Long workspaceId, PageCreateRequest request) {
-        PrincipalUser user = currentUser();
+        Long userId = currentUser();
 
         Page page = new Page();
         page.setWorkspaceId(workspaceId);
         page.setTitle(request.getTitle());
         page.setContent(request.getContent());
         page.setParentId(request.getParentId());
-        page.setCreatedBy(user.getId());
+        page.setCreatedBy(userId);
 
-        Optional<Page> saved = pageRepository.save(page, user.getId());
+        Optional<Page> saved = pageRepository.save(page, userId);
         if (saved.isEmpty()) {
             throw new WorkspaceNotFoundException("Workspace not found");
         }
 
         Page savedPage = saved.get();
         String metadata = createPageMetadata(savedPage);
-        publisher.publishEvent(new PageCreatedEvent(user.getId(), metadata));
+        publisher.publishEvent(new PageCreatedEvent(userId, metadata));
 
         return toResponse(savedPage);
     }
 
     public List<PageResponse> getWorkspacePages(Long workspaceId) {
-        PrincipalUser user = currentUser();
+        Long userId = currentUser();
 
-        return pageRepository.findAllByWorkspaceIdAndOwnerId(workspaceId, user.getId())
+        return pageRepository.findAllByWorkspaceIdAndOwnerId(workspaceId, userId)
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     public PageResponse getById(Long pageId) {
-        PrincipalUser user = currentUser();
+        Long userId = currentUser();
 
-        Optional<Page> page = pageRepository.findByIdAndOwnerId(pageId, user.getId());
+        Optional<Page> page = pageRepository.findByIdAndOwnerId(pageId, userId);
         if (page.isEmpty()) {
             throw new PageNotFoundException("Page not found");
         }
@@ -80,43 +79,42 @@ public class PageService {
 
     @Transactional
     public PageResponse update(Long pageId, PageUpdateRequest request) {
-        PrincipalUser user = currentUser();
+        Long userId = currentUser();
 
         Page page = new Page();
         page.setTitle(request.getTitle());
         page.setContent(request.getContent());
         page.setParentId(request.getParentId());
 
-        Optional<Page> updated = pageRepository.updateByIdAndOwnerId(page, pageId, user.getId());
+        Optional<Page> updated = pageRepository.updateByIdAndOwnerId(page, pageId, userId);
         if (updated.isEmpty()) {
             throw new PageNotFoundException("Page not found");
         }
 
         Page updatedPage = updated.get();
         String metadata = createPageMetadata(updatedPage);
-        publisher.publishEvent(new PageUpdatedEvent(user.getId(), metadata));
+        publisher.publishEvent(new PageUpdatedEvent(userId, metadata));
 
         return toResponse(updatedPage);
     }
 
     @Transactional
     public void delete(Long pageId) {
-        PrincipalUser user = currentUser();
-        Page existingPage = pageRepository.findByIdAndOwnerId(pageId, user.getId())
+        Long userId = currentUser();
+        Page existingPage = pageRepository.findByIdAndOwnerId(pageId, userId)
                 .orElseThrow(() -> new PageNotFoundException("Page not found"));
 
-        boolean deleted = pageRepository.softDeleteByIdAndOwnerId(pageId, user.getId());
+        boolean deleted = pageRepository.softDeleteByIdAndOwnerId(pageId, userId);
         if (!deleted) {
             throw new PageNotFoundException("Page not found");
         }
 
         String metadata = createPageMetadata(existingPage);
-        publisher.publishEvent(new PageDeletedEvent(user.getId(), metadata));
+        publisher.publishEvent(new PageDeletedEvent(userId, metadata));
     }
 
-    private PrincipalUser currentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (PrincipalUser) auth.getPrincipal();
+    private Long currentUser() {
+        return currentUserProvider.getCurrentUserId();
     }
 
     private PageResponse toResponse(Page page) {

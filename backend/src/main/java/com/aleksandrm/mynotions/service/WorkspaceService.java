@@ -9,12 +9,9 @@ import com.aleksandrm.mynotions.events.WorkspaceUpdatedEvent;
 import com.aleksandrm.mynotions.exception.WorkspaceNotFoundException;
 import com.aleksandrm.mynotions.model.Workspace;
 import com.aleksandrm.mynotions.repository.WorkspaceRepository;
-import com.aleksandrm.mynotions.security.PrincipalUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +24,17 @@ public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
     private final ApplicationEventPublisher publisher;
     private final ObjectMapper objectMapper;
+    private final CurrentUserProvider currentUserProvider;
 
-    public WorkspaceService(WorkspaceRepository workspaceRepository, ApplicationEventPublisher publisher, ObjectMapper objectMapper) {
+    public WorkspaceService(WorkspaceRepository workspaceRepository, ApplicationEventPublisher publisher, ObjectMapper objectMapper, CurrentUserProvider currentUserProvider) {
         this.workspaceRepository = workspaceRepository;
         this.publisher = publisher;
         this.objectMapper = objectMapper;
+        this.currentUserProvider = currentUserProvider;
     }
 
     public List<WorkspaceResponse> getUserWorkspaces() {
-        List<Workspace> workspaces = workspaceRepository.findAllByOwnerId(currentUser().getId());
+        List<Workspace> workspaces = workspaceRepository.findAllByOwnerId(currentUser());
         return workspaces
                 .stream()
                 .map(this::toResponse)
@@ -43,7 +42,7 @@ public class WorkspaceService {
     }
 
     public WorkspaceResponse getWorkspaceById(Long workspaceId) {
-        Optional<Workspace> workspace = workspaceRepository.findByIdAndOwnerId(workspaceId, currentUser().getId());
+        Optional<Workspace> workspace = workspaceRepository.findByIdAndOwnerId(workspaceId, currentUser());
         if (workspace.isEmpty()) {
             throw new WorkspaceNotFoundException("Workspace not found");
         } else {
@@ -54,7 +53,7 @@ public class WorkspaceService {
     @Transactional
     public WorkspaceResponse create(WorkspaceCreateRequest request) {
         Workspace workspace = new Workspace();
-        workspace.setOwnerId(currentUser().getId());
+        workspace.setOwnerId(currentUser());
         workspace.setName(request.getName());
 
         Workspace saved = workspaceRepository.save(workspace);
@@ -67,13 +66,13 @@ public class WorkspaceService {
 
     @Transactional
     public WorkspaceResponse update(Long id, WorkspaceUpdateRequest request) {
-        PrincipalUser user = currentUser();
-
+        Long userId = currentUser();
         Workspace workspace = new Workspace();
-        workspace.setOwnerId(user.getId());
+
+        workspace.setOwnerId(userId);
         workspace.setName(request.getName());
 
-        Optional<Workspace> updated = workspaceRepository.update(workspace, id, user.getId());
+        Optional<Workspace> updated = workspaceRepository.update(workspace, id, userId);
         Workspace updatedWorkspace = updated.orElseThrow(() -> new WorkspaceNotFoundException("Workspace not found"));
 
         String metadata = createWorkspaceMetadata(updatedWorkspace.getId(), updatedWorkspace.getName());
@@ -84,8 +83,10 @@ public class WorkspaceService {
 
     @Transactional
     public void delete(Long id) {
-        Workspace existing = workspaceRepository.findByIdAndOwnerId(id, currentUser().getId()).orElseThrow(() -> new WorkspaceNotFoundException("Workspace not found"));
-        boolean isDeleted = workspaceRepository.deleteByIdAndOwnerId(id, currentUser().getId());
+        Long userId = currentUser();
+
+        Workspace existing = workspaceRepository.findByIdAndOwnerId(id, userId).orElseThrow(() -> new WorkspaceNotFoundException("Workspace not found"));
+        boolean isDeleted = workspaceRepository.deleteByIdAndOwnerId(id, userId);
 
         if (!isDeleted) {
             throw new WorkspaceNotFoundException("Workspace not found");
@@ -95,9 +96,8 @@ public class WorkspaceService {
         publisher.publishEvent(new WorkspaceDeletedEvent(existing.getOwnerId(), metadata));
     }
 
-    private PrincipalUser currentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (PrincipalUser) auth.getPrincipal();
+    private Long currentUser() {
+        return currentUserProvider.getCurrentUserId();
     }
 
     private WorkspaceResponse toResponse(Workspace workspace) {
